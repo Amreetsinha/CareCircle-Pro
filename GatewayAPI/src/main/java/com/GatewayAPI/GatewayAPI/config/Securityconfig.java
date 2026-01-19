@@ -16,7 +16,7 @@ public class Securityconfig {
 	 * - Allows public access only to authenticate endpoints 
 	 * - Secures all other routes by default
 	 * 
-	 * jwt authentication will be added in  a separate step
+	 * jwt authentication will be added in  a separate step	
 	 */
 
 	@Bean
