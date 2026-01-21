@@ -41,11 +41,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
 
-        User user = userService.login(request);
+        String token = userService.loginAndGenerateToken(request);
 
-        // Temporary token placeholder (JWT comes next)
-        String temporaryToken = "TEMP_TOKEN";
-
-        return ResponseEntity.ok(new AuthResponse(temporaryToken));
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }

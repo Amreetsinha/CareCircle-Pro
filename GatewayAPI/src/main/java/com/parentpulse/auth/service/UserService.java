@@ -21,7 +21,7 @@ public interface UserService {
 	/*
 	 * Authenticate a user
 	 * @param request login request data
-	 * @return authenticated user
+	 * @return string with having token
 	 */
-	User login(LoginRequest request); 
+	String loginAndGenerateToken(LoginRequest request);
 }
