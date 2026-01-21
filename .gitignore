@@ -1,1 +1,21 @@
 
+#================================
+#====GATEWAY-SERVICE========#
+#================================#
+
+gateway-service/target/
+gateway-service/*.log
+
+# ===== IDEs =====
+gateway-service/.classpath
+gateway-service/.project
+gateway-service/.settings/
+gateway-service/.idea/
+gateway-service/.vscode/
+
+
+
+# ===== Environment =====
+gateway-service/.env
+gateway-service/.env.*
+
