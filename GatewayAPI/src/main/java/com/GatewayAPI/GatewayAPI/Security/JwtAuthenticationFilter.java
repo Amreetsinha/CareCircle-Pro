@@ -97,16 +97,22 @@ public class JwtAuthenticationFilter implements GlobalFilter {
      */
     private String resolveOriginalPath(ServerWebExchange exchange) {
 
-        List<URI> originalUris =
+        Object attribute =
                 exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR);
 
-        if (originalUris != null && !originalUris.isEmpty()) {
-            return originalUris.get(0).getPath();
+        if (attribute instanceof Iterable<?> iterable) {
+            for (Object value : iterable) {
+                if (value instanceof java.net.URI uri) {
+                    return uri.getPath();
+                }
+            }
         }
 
-        // Fallback (should rarely happen)
+        // Fallback (should rarely be used)
         return exchange.getRequest().getURI().getPath();
     }
+
+
 
     /**
      * Simple role-to-path authorization rules.
