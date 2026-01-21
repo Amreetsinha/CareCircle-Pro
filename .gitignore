@@ -19,3 +19,28 @@ gateway-service/.vscode/
 gateway-service/.env
 gateway-service/.env.*
 
+
+
+
+#================================
+#====AUTH-SERVICE========#
+#================================#
+
+auth-service/target/
+auth-service/*.log
+
+# ===== IDEs =====
+auth-service/.classpath
+auth-service/.project
+auth-service/.settings/
+auth-service/.idea/
+auth-service/.vscode/
+
+
+
+# ===== Environment =====
+auth-service/.env
+auth-service/.env.*
+
+auth-service/src/main/resources/
+
