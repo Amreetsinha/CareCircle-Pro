@@ -1,5 +1,6 @@
 package com.parentpulse.auth.service.impl;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.parentpulse.auth.dto.request.LoginRequest;
@@ -19,8 +20,13 @@ public class UserServiceImpl implements UserService {
 	
 	private final UserRepository userRepository; 
 	
-	public UserServiceImpl(UserRepository userRepository) {
+	private final PasswordEncoder passwordEncoder; 
+	
+	public UserServiceImpl(UserRepository userRepository, 
+			PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository; 
+		
+		this.passwordEncoder = passwordEncoder; 
 	}
 
 	@Override
@@ -35,7 +41,7 @@ public class UserServiceImpl implements UserService {
 		
 		user.setEmail(request.getEmail());
 		
-		user.setPassword(request.getPassword());
+		user.setPassword(passwordEncoder.encode(request.getPassword()));
 		
         user.setRole(request.getRole());
         
@@ -48,10 +54,15 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User login(LoginRequest request) {
 		
-		return userRepository.findByEmail(request.getEmail())
+		User  user =  userRepository.findByEmail(request.getEmail())
 				.filter(User::isEnabled)
 				.orElseThrow(() ->
 				new InvalidCredentialsException("Invalid email or password.")); 
+		
+		if(!passwordEncoder.matches(request.getPassword(), user.getPassword()))
+			throw new InvalidCredentialsException("The password did not match"); 
+		
+		return user; 
 				
 	}
 
