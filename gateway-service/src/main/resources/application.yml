@@ -12,5 +12,6 @@ spring:
           uri: http://localhost:8081
           predicates:
             - Path=/auth/**
-          filters:
-            - StripPrefix=1
+
+jwt:
+  secret: carecircle-auth-secret-key-which-is-at-least-32-bytes-long
