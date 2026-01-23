@@ -93,6 +93,22 @@ public class ChildController {
 
         return mapToResponse(updatedChild);
     }
+    
+    /**
+     * Deletes a child owned by the authenticated parent.
+     */
+    @DeleteMapping("/{childId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteChild(
+            @PathVariable Long childId,
+            HttpServletRequest httpRequest
+    ) {
+        String userEmail = extractUserEmail(httpRequest);
+        validateParentRole(httpRequest);
+
+        childService.deleteChild(userEmail, childId);
+    }
+    
 
     // =========================
     // Private helper methods

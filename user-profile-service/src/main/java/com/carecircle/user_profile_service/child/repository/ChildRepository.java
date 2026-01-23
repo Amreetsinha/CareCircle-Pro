@@ -31,4 +31,9 @@ public interface ChildRepository extends JpaRepository<Child, Long> {
      * @return child if found and owned by parent
      */
     Optional<Child> findByIdAndParent(Long id, ParentProfile parent);
+    
+    /*
+     * Delete the children only using the parent
+     */
+    void deleteByIdAndParent(Long id, ParentProfile parent);
 }

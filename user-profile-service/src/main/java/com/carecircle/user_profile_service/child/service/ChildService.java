@@ -106,5 +106,29 @@ public class ChildService {
 
         return child;
     }
+    
+    
+    /**
+     * Deletes a child if it belongs to the authenticated parent.
+     *
+     * @param userEmail authenticated parent's email
+     * @param childId child id
+     */
+    @Transactional
+    public void deleteChild(String userEmail, Long childId) {
+        ParentProfile parent =
+                parentProfileService.getProfileByUserEmail(userEmail);
+
+        boolean exists = childRepository
+                .findByIdAndParent(childId, parent)
+                .isPresent();
+
+        if (!exists) {
+            throw new ChildNotFoundException(childId);
+        }
+
+        childRepository.deleteByIdAndParent(childId, parent);
+    }
+
 }
 
