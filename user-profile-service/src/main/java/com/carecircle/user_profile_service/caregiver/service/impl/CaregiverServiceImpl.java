@@ -1,5 +1,7 @@
 package com.carecircle.user_profile_service.caregiver.service.impl;
 
+import com.carecircle.user_profile_service.caregiver.exception.CaregiverProfileAlreadyExistsException;
+import com.carecircle.user_profile_service.caregiver.exception.CaregiverProfileNotFoundException;
 import com.carecircle.user_profile_service.caregiver.model.CaregiverCapability;
 import com.carecircle.user_profile_service.caregiver.model.CaregiverCertification;
 import com.carecircle.user_profile_service.caregiver.model.CaregiverProfile;
@@ -55,7 +57,7 @@ public class CaregiverServiceImpl implements CaregiverService {
             Integer experienceYears
     ) {
         profileRepository.findByUserEmail(userEmail).ifPresent(existing -> {
-            throw new IllegalStateException("Caregiver profile already exists");
+        	 throw new CaregiverProfileAlreadyExistsException(userEmail);
         });
 
         CaregiverProfile profile = new CaregiverProfile(
@@ -81,7 +83,7 @@ public class CaregiverServiceImpl implements CaregiverService {
     @Transactional(readOnly = true)
     public CaregiverProfile getMyProfile(String userEmail) {
         return profileRepository.findByUserEmail(userEmail)
-                .orElseThrow(() -> new IllegalStateException("Caregiver profile not found"));
+                .orElseThrow(() -> new CaregiverProfileNotFoundException(userEmail));
     }
 
     @Override

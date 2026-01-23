@@ -6,6 +6,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.carecircle.user_profile_service.caregiver.exception.CaregiverCapabilityNotFoundException;
+import com.carecircle.user_profile_service.caregiver.exception.CaregiverCertificationNotFoundException;
+import com.carecircle.user_profile_service.caregiver.exception.CaregiverProfileNotFoundException;
+
 /**
  * Centralized exception handling for the user-profile-service.
  */
@@ -49,5 +53,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(error);
+    }
+    
+    @ExceptionHandler({
+        CaregiverProfileNotFoundException.class,
+        CaregiverCapabilityNotFoundException.class,
+        CaregiverCertificationNotFoundException.class
+    })
+    public ResponseEntity<ApiError> handleCaregiverNotFound(RuntimeException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ApiError(ex.getMessage(), 404));
     }
 }
