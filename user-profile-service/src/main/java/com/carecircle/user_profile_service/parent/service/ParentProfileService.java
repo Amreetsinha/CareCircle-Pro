@@ -1,6 +1,8 @@
 package com.carecircle.user_profile_service.parent.service;
 
 
+import com.carecircle.user_profile_service.parent.exception.ParentProfileAlreadyExistsException;
+import com.carecircle.user_profile_service.parent.exception.ParentProfileNotFoundException;
 import com.carecircle.user_profile_service.parent.model.ParentProfile;
 import com.carecircle.user_profile_service.parent.repository.ParentProfileRepository;
 import org.springframework.stereotype.Service;
@@ -40,7 +42,7 @@ public class ParentProfileService {
     ) {
         boolean exists = parentProfileRepository.findByUserEmail(userEmail).isPresent();
         if (exists) {
-            throw new IllegalStateException("Parent profile already exists for this user");
+        	 throw new ParentProfileAlreadyExistsException(userEmail);
         }
 
         ParentProfile profile =
@@ -61,7 +63,7 @@ public class ParentProfileService {
         return parentProfileRepository
                 .findByUserEmail(userEmail)
                 .orElseThrow(() ->
-                        new IllegalStateException("Parent profile not found for user")
+                        new ParentProfileNotFoundException(userEmail)
                 );
     }
 }
