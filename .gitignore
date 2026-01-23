@@ -1,46 +1,32 @@
+# ===== GLOBAL (All Microservices) =======
 
-#================================
-#====GATEWAY-SERVICE========#
-#================================#
+# Maven / Gradle
+**/target/
+**/*.log
 
-gateway-service/target/
-gateway-service/*.log
+# OS files
+.DS_Store
+Thumbs.db
 
-# ===== IDEs =====
-gateway-service/.classpath
-gateway-service/.project
-gateway-service/.settings/
-gateway-service/.idea/
-gateway-service/.vscode/
-
+# Environment files
+**/.env
+**/.env.*
 
 
-# ===== Environment =====
-gateway-service/.env
-gateway-service/.env.*
+# ===== IDEs =============================
 
+# IntelliJ IDEA
+**/.idea/
+**/*.iml
 
+# Eclipse / STS
+**/.classpath
+**/.project
+**/.settings/
+**/src/main/resources/
+**/bin/
 
+# ===== Metadata =========================
 
-#================================
-#====AUTH-SERVICE========#
-#================================#
-
-auth-service/target/
-auth-service/*.log
-
-# ===== IDEs =====
-auth-service/.classpath
-auth-service/.project
-auth-service/.settings/
-auth-service/.idea/
-auth-service/.vscode/
-
-
-
-# ===== Environment =====
-auth-service/.env
-auth-service/.env.*
-
-auth-service/src/main/resources/
-
+.metadata/
+.recommenders/
