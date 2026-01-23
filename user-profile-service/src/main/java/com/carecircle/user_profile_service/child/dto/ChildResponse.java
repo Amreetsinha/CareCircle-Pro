@@ -23,7 +23,7 @@ public class ChildResponse {
             LocalDateTime createdAt
     ) {
         this.id = id;
-        this.name = name;
+        this.name = name;	
         this.age = age;
         this.gender = gender;
         this.specialNeeds = specialNeeds;
