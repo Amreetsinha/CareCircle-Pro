@@ -234,5 +234,26 @@ public class CaregiverProfile {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+    
+ // ===== Verification state changes (admin-only usage) =====
+
+    public void markVerified() {
+        this.verificationStatus = "VERIFIED";
+        this.rejectionReason = null;
+    }
+
+    public void markRejected(String reason) {
+        this.verificationStatus = "REJECTED";
+        this.rejectionReason = reason;
+    }
+
+    public void disable() {
+        this.isActive = false;
+    }
+
+    public void enable() {
+        this.isActive = true;
+    }
+
 }
 

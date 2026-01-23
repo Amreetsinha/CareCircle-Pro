@@ -117,5 +117,15 @@ public class CaregiverCertification {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+    
+ // ===== Verification state changes (admin-only usage) =====
+
+    public void markVerified() {
+        this.verified = true;
+    }
+
+    public void markUnverified() {
+        this.verified = false;
+    }
 }
 
