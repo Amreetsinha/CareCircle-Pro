@@ -24,7 +24,7 @@ public class CaregiverController {
 
     private static final String USER_EMAIL_HEADER = "X-User-Email";
     private static final String USER_ROLE_HEADER = "X-User-Role";
-    private static final String CAREGIVER_ROLE = "CAREGIVER";
+    private static final String CAREGIVER_ROLE = "ROLE_CAREGIVER";
 
     private final CaregiverService caregiverService;
 
