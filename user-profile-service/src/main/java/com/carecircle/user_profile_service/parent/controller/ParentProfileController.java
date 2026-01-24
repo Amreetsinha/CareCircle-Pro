@@ -22,7 +22,7 @@ public class ParentProfileController {
 
     private static final String USER_EMAIL_HEADER = "X-User-Email";
     private static final String USER_ROLE_HEADER = "X-User-Role";
-    private static final String PARENT_ROLE = "PARENT";
+    private static final String PARENT_ROLE = "ROLE_PARENT";
 
     private final ParentProfileService parentProfileService;
 
@@ -42,6 +42,7 @@ public class ParentProfileController {
         String userEmail = extractUserEmail(httpRequest);
         validateParentRole(httpRequest);
 
+        
         ParentProfile profile = parentProfileService.createProfile(
                 userEmail,
                 request.getFullName(),
@@ -79,6 +80,7 @@ public class ParentProfileController {
 
     private void validateParentRole(HttpServletRequest request) {
         String role = request.getHeader(USER_ROLE_HEADER);
+        System.out.println(role);
         if (!PARENT_ROLE.equals(role)) {
             throw new IllegalStateException("Access denied: user is not a parent");
         }

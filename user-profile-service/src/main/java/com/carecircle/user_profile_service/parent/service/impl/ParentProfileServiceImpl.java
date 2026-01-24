@@ -5,6 +5,8 @@ import com.carecircle.user_profile_service.parent.exception.ParentProfileAlready
 import com.carecircle.user_profile_service.parent.exception.ParentProfileNotFoundException;
 import com.carecircle.user_profile_service.parent.model.ParentProfile;
 import com.carecircle.user_profile_service.parent.repository.ParentProfileRepository;
+import com.carecircle.user_profile_service.parent.service.ParentProfileService;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
  * related to parent profiles.
  */
 @Service
-public class ParentProfileServiceImpl {
+public class ParentProfileServiceImpl implements ParentProfileService{
 
     private final ParentProfileRepository parentProfileRepository;
 

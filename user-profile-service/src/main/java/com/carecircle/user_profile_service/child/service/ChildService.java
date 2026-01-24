@@ -5,6 +5,8 @@ import com.carecircle.user_profile_service.child.model.Child;
 import com.carecircle.user_profile_service.child.repository.ChildRepository;
 import com.carecircle.user_profile_service.parent.model.ParentProfile;
 import com.carecircle.user_profile_service.parent.service.ParentProfileService;
+import com.carecircle.user_profile_service.parent.service.impl.ParentProfileServiceImpl;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +25,7 @@ public class ChildService {
 
     public ChildService(
             ChildRepository childRepository,
-            ParentProfileService parentProfileService
+            ParentProfileServiceImpl parentProfileService
     ) {
         this.childRepository = childRepository;
         this.parentProfileService = parentProfileService;

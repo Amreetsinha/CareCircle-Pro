@@ -12,7 +12,7 @@ import com.carecircle.user_profile_service.parent.model.ParentProfile;
  * This layer coordinates persistence and enforces business rules
  * related to parent profiles.
  */
-@Service
+
 public interface ParentProfileService {
 
 
@@ -26,7 +26,7 @@ public interface ParentProfileService {
      * @return persisted ParentProfile
      * @throws IllegalStateException if profile already exists
      */
-    @Transactional
+  
     public ParentProfile createProfile(
             String userEmail,
             String fullName,
@@ -41,6 +41,6 @@ public interface ParentProfileService {
      * @return ParentProfile
      * @throws IllegalStateException if profile does not exist
      */
-    @Transactional(readOnly = true)
+
     public ParentProfile getProfileByUserEmail(String userEmail);
 }

@@ -25,7 +25,7 @@ public class ChildController {
 
     private static final String USER_EMAIL_HEADER = "X-User-Email";
     private static final String USER_ROLE_HEADER = "X-User-Role";
-    private static final String PARENT_ROLE = "PARENT";
+    private static final String PARENT_ROLE = "ROLE_PARENT";
 
     private final ChildService childService;
 
