@@ -27,13 +27,11 @@ public class JwtAuthFilter implements GlobalFilter {
 
 	    // ===== PUBLIC ENDPOINTS (NO JWT, NO ROLE CHECK) =====
 	    if (
-	        path.equals("/register") ||
-	        path.equals("/login") ||
-	        path.startsWith("/auth/") ||
-	        path.startsWith("/actuator/")
-	    ) {
-	        return chain.filter(exchange);
-	    }
+	    	    path.startsWith("/auth/") ||
+	    	    path.startsWith("/actuator/")
+	    	) {
+	    	    return chain.filter(exchange);
+	    	}
 
 	    // ===== JWT REQUIRED =====
 	    String authHeader = exchange.getRequest()
@@ -65,11 +63,18 @@ public class JwtAuthFilter implements GlobalFilter {
 
 	    // ===== FORWARD TRUSTED HEADERS =====
 	    exchange = exchange.mutate()
-	            .request(builder -> builder
-	                    .header("X-User-Email", claims.getSubject())
-	                    .header("X-User-Role", role)
-	            )
-	            .build();
+	        .request(builder -> builder
+	            .headers(headers -> {
+	                headers.remove("X-User-Email");
+	                headers.remove("X-User-Role");
+	                headers.remove("X-Request-Source");
+	            })
+	            .header("X-User-Email", claims.getSubject())
+	            .header("X-User-Role", role)
+	            .header("X-Request-Source", "GATEWAY")
+	        )
+	        .build();
+
 
 	    return chain.filter(exchange);
 	}
@@ -77,18 +82,17 @@ public class JwtAuthFilter implements GlobalFilter {
 	private boolean isAuthorized(String path, String role) {
 
 	    if (path.startsWith("/admin/")) {
-	        return "ROLE_ADMIN".equals(role);
+	        return "ADMIN".equals(role);
 	    }
 
-	    if (path.startsWith("/provider/")) {
-	        return "ROLE_PROVIDER".equals(role);
+	    if (path.startsWith("/caregiver/")) {
+	        return "CAREGIVER".equals(role);
 	    }
 
-	    if (path.startsWith("/parent/")) {
-	        return "ROLE_PARENT".equals(role);
+	    if (path.startsWith("/parents/")) {
+	        return "PARENT".equals(role);
 	    }
-
-	    return true;
+	    return false;
 	}
 
 }
