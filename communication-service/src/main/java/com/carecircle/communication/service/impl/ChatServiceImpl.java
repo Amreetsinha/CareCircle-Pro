@@ -1,5 +1,6 @@
 package com.carecircle.communication.service.impl;
 
+import com.carecircle.communication.dto.response.ChatMessageResponse;
 import com.carecircle.communication.exception.ChatBlockedException;
 import com.carecircle.communication.model.chat.ChatMessage;
 import com.carecircle.communication.service.interfaces.NotificationService;
@@ -16,6 +17,7 @@ import com.carecircle.communication.service.interfaces.ChatService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -95,6 +97,32 @@ public class ChatServiceImpl implements ChatService {
                                 "New message received"
                         )
                 );
+    }
+
+    @Override
+    public List<ChatMessageResponse> getRoomMessages(UUID roomId, UUID userId) {
+
+        boolean isParticipant = chatParticipantRepository
+                .existsByRoomIdAndUserId(roomId, userId);
+
+        if (!isParticipant) {
+            throw new IllegalStateException("User is not a participant of this chat room");
+        }
+
+        return chatMessageRepository.findByRoomIdOrderByCreatedAtAsc(roomId)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    private ChatMessageResponse mapToResponse(ChatMessage message) {
+        ChatMessageResponse response = new ChatMessageResponse();
+        response.setId(message.getId());
+        response.setSenderId(message.getSenderId());
+        response.setContent(message.getContent());
+        response.setMessageType(message.getMessageType().name());
+        response.setCreatedAt(message.getCreatedAt());
+        return response;
     }
 
 
