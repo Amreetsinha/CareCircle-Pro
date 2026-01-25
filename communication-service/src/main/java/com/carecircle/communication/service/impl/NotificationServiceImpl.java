@@ -7,6 +7,7 @@ import com.carecircle.communication.service.interfaces.NotificationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -38,5 +39,25 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setRead(true);
         notificationRepository.save(notification);
     }
+    
+    @Override
+    public List<Notification> getUserNotifications(UUID userId) {
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    @Override
+    public void markAsRead(UUID notificationId, UUID userId) {
+        Notification notification = notificationRepository
+                .findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("Notification not found"));
+
+        if (!notification.getUserId().equals(userId)) {
+            throw new IllegalStateException("Not allowed to modify this notification");
+        }
+
+        notification.setRead(true);
+        notificationRepository.save(notification);
+    }
+
 }
 
