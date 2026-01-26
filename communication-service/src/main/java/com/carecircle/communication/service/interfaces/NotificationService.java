@@ -8,8 +8,6 @@ import com.carecircle.communication.model.notification.Notification;
 public interface NotificationService {
 
     void createNotification(UUID userId, String type, String content);
-
-    void markAsRead(UUID notificationId);
     
     List<Notification> getUserNotifications(UUID userId);
 
