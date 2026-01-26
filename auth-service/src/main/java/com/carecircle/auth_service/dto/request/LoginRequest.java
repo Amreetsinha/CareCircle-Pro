@@ -1,9 +1,12 @@
 package com.carecircle.auth_service.dto.request;
 
+import com.carecircle.auth_service.model.Role;
+
 public class LoginRequest {
 
     private String email;
     private String password;
+    private Role role; 
 
     public String getEmail() {
         return email;
@@ -20,4 +23,13 @@ public class LoginRequest {
     public void setPassword(String password) {
         this.password = password;
     }
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+    
 }
