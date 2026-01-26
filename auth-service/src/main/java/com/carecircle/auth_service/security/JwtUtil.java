@@ -48,7 +48,8 @@ public class JwtUtil {
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .setSubject(user.getEmail())              // identity
+                .setSubject(user.getEmail()) 
+                .claim("userId", user.getId().toString()) //Adding uuid
                 .claim("role", user.getRole().name())     // authorization
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
