@@ -1,0 +1,224 @@
+/* Register.css - Enhanced with Dropdown Role Selector */
+
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fdfbfb, #ebedee);
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.register-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 50px;
+  width: 100%;
+  max-width: 500px;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.register-card h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.register-card .subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: #718096;
+  margin-bottom: 30px;
+}
+
+/* Register Form */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Role Selector */
+.role-selector {
+  margin-bottom: 25px;
+  padding-bottom: 25px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.role-selector label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 8px;
+}
+
+.role-dropdown {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  padding-right: 40px;
+}
+
+.role-dropdown:hover {
+  border-color: #cbd5e0;
+}
+
+.role-dropdown:focus {
+  outline: none;
+  border-color: #f5576c;
+  box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+}
+
+.role-description {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #718096;
+  font-style: italic;
+  padding: 8px 12px;
+  background-color: #fef5f5;
+  border-radius: 6px;
+  border-left: 3px solid #f5576c;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 8px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #f5576c;
+  box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+}
+
+.input-field::placeholder {
+  color: #cbd5e0;
+}
+
+/* Password Hint */
+.password-hint {
+  font-size: 12px;
+  color: #718096;
+  margin: -12px 0 18px 0;
+  padding: 8px 12px;
+  background-color: #fef5f5;
+  border-radius: 6px;
+  border-left: 3px solid #f5576c;
+}
+
+/* Register Button */
+.register-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.register-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
+}
+
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Divider */
+.divider {
+  text-align: center;
+  margin: 25px 0;
+  font-size: 13px;
+  color: #a0aec0;
+  text-transform: lowercase;
+}
+
+/* Login Link */
+.login-prompt {
+  text-align: center;
+  font-size: 14px;
+  color: #718096;
+  margin: 0;
+}
+
+.login-prompt a {
+  color: #f5576c;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.login-prompt a:hover {
+  color: #f093fb;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .register-card {
+    padding: 30px 20px;
+  }
+
+  .register-card h2 {
+    font-size: 24px;
+  }
+
+  .register-form {
+    gap: 12px;
+  }
+}
