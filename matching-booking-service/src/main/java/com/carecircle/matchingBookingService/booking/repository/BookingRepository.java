@@ -13,4 +13,12 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     List<Booking> findByParentId(UUID parentId);
 
     List<Booking> findByCaregiverId(UUID caregiverId);
+    
+    boolean existsByCaregiverIdAndStatusAndStartTimeLessThanAndEndTimeGreaterThan(
+            UUID caregiverId,
+            String status,
+            java.time.LocalTime endTime,
+            java.time.LocalTime startTime
+    );
+    
 }

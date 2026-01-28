@@ -16,24 +16,7 @@ public class CaregiverBookingController {
         this.bookingRepository = bookingRepository;
     }
 
-    @PostMapping("/{bookingId}/accept")
-    public Booking acceptBooking(
-            @RequestHeader("X-User-Id") UUID caregiverId,
-            @PathVariable UUID bookingId
-    ) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
 
-        if (!booking.getCaregiverId().equals(caregiverId)) {
-            throw new RuntimeException("Not authorized to accept this booking");
-        }
-
-        if (!"REQUESTED".equals(booking.getStatus())) {
-            throw new RuntimeException("Booking is not in REQUESTED state");
-        }
-
-        booking.accept();
-        return bookingRepository.save(booking);
-    }
 
     @PostMapping("/{bookingId}/reject")
     public Booking rejectBooking(
@@ -53,4 +36,40 @@ public class CaregiverBookingController {
         booking.reject();
         return bookingRepository.save(booking);
     }
+    
+    @PostMapping("/{bookingId}/accept")
+    public Booking acceptBooking(
+            @RequestHeader("X-User-Id") UUID caregiverId,
+            @PathVariable UUID bookingId
+    ) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
+
+        if (!booking.getCaregiverId().equals(caregiverId)) {
+            throw new RuntimeException("Not authorized to accept this booking");
+        }
+
+        if (!"REQUESTED".equals(booking.getStatus())) {
+            throw new RuntimeException("Booking is not in REQUESTED state");
+        }
+
+        // Hourly overlap check
+        if ("HOURLY".equals(booking.getBookingType())) {
+            boolean conflict =
+                    bookingRepository
+                            .existsByCaregiverIdAndStatusAndStartTimeLessThanAndEndTimeGreaterThan(
+                                    caregiverId,
+                                    "ACCEPTED",
+                                    booking.getEndTime(),
+                                    booking.getStartTime()
+                            );
+
+            if (conflict) {
+                throw new RuntimeException("Booking time conflicts with existing booking");
+            }
+        }
+
+        booking.accept();
+        return bookingRepository.save(booking);
+    }
+
 }
