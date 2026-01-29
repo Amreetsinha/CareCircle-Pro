@@ -151,6 +151,7 @@ public class CaregiverProfile {
         this.bio = bio;
         this.experienceYears = experienceYears;
         this.verificationStatus = "PENDING";
+        this.verificationStatus = "PENDING";
         this.isActive = true;
         this.overallRating = 0.0;
         this.totalReviews = 0;
