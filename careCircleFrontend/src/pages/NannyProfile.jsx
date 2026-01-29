@@ -5,8 +5,6 @@ import {
   addCapability,
   getCaregiverProfile
 } from "../api/caregiverApi";
-import "./NannyProfile.css";
-
 export default function NannyProfile() {
   const [message, setMessage] = useState("");
 
@@ -135,95 +133,139 @@ export default function NannyProfile() {
 
   /* ================= UI ================= */
   return (
-    <div className="nanny-container">
-      <h2>Nanny / Caregiver Onboarding</h2>
+    <div className="max-w-[700px] mx-auto mt-32 mb-10 p-8 bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.12)] font-sans">
+      <h2 className="text-center text-2xl font-bold text-gray-800 mb-6">Nanny / Caregiver Onboarding</h2>
 
-      {message && <p className="status">{message}</p>}
+      {message && <p className={`mb-5 text-center font-semibold ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}>{message}</p>}
 
       {/* ================= PROFILE ================= */}
-      <h3>Profile Details</h3>
+      <h3 className="mt-8 mb-3 text-lg font-bold text-gray-700 border-b-2 border-gray-100 pb-1.5">Profile Details</h3>
 
-      <input name="fullName" placeholder="Full Name *" value={profile.fullName}
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+      <div className="flex flex-col gap-3.5">
+        <input name="fullName" placeholder="Full Name *" value={profile.fullName}
+          onChange={(e) => handleChange(e, setProfile, profile)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+        />
 
-      <input name="phoneNumber" placeholder="Phone Number *" value={profile.phoneNumber}
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+        <input name="phoneNumber" placeholder="Phone Number *" value={profile.phoneNumber}
+          onChange={(e) => handleChange(e, setProfile, profile)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+        />
 
-      <input type="number" name="age" placeholder="Age *" value={profile.age}
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+        <input type="number" name="age" placeholder="Age *" value={profile.age}
+          onChange={(e) => handleChange(e, setProfile, profile)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+        />
 
-      <select name="gender" value={profile.gender}
-        onChange={(e) => handleChange(e, setProfile, profile)}>
-        <option value="">Select Gender *</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-      </select>
+        <select name="gender" value={profile.gender}
+          onChange={(e) => handleChange(e, setProfile, profile)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 bg-white"
+        >
+          <option value="">Select Gender *</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
 
-      <input name="addressLine1" placeholder="Address Line 1 *" value={profile.addressLine1}
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+        <input name="addressLine1" placeholder="Address Line 1 *" value={profile.addressLine1}
+          onChange={(e) => handleChange(e, setProfile, profile)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+        />
 
-      <input name="addressLine2" placeholder="Address Line 2" value={profile.addressLine2}
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+        <input name="addressLine2" placeholder="Address Line 2" value={profile.addressLine2}
+          onChange={(e) => handleChange(e, setProfile, profile)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+        />
 
-      <input name="city" placeholder="City *" value={profile.city}
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+        <div className="grid grid-cols-2 gap-3.5">
+          <input name="city" placeholder="City *" value={profile.city}
+            onChange={(e) => handleChange(e, setProfile, profile)}
+            className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+          />
 
-      <input name="state" placeholder="State *" value={profile.state}
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+          <input name="state" placeholder="State *" value={profile.state}
+            onChange={(e) => handleChange(e, setProfile, profile)}
+            className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+          />
+        </div>
 
-      <input name="pincode" placeholder="Pincode *" value={profile.pincode}
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+        <div className="grid grid-cols-2 gap-3.5">
+          <input name="pincode" placeholder="Pincode *" value={profile.pincode}
+            onChange={(e) => handleChange(e, setProfile, profile)}
+            className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+          />
 
-      <input name="country" value={profile.country}
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+          <input name="country" value={profile.country}
+            onChange={(e) => handleChange(e, setProfile, profile)}
+            className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+          />
+        </div>
 
-      <input type="number" name="experienceYears" value={profile.experienceYears}
-        placeholder="Experience (years)"
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+        <input type="number" name="experienceYears" value={profile.experienceYears}
+          placeholder="Experience (years)"
+          onChange={(e) => handleChange(e, setProfile, profile)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+        />
 
-      <textarea name="bio" placeholder="Short Bio" value={profile.bio}
-        onChange={(e) => handleChange(e, setProfile, profile)} />
+        <textarea name="bio" placeholder="Short Bio" value={profile.bio}
+          onChange={(e) => handleChange(e, setProfile, profile)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300 resize-y min-h-[90px]"
+        />
 
-      <button onClick={submitProfile}>Save Profile</button>
+        <button onClick={submitProfile} className="w-full p-3.5 bg-gradient-to-r from-blue-600 to-blue-400 text-white font-bold rounded-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(49,130,206,0.35)] active:translate-y-0">
+          Save Profile
+        </button>
+      </div>
 
       {/* ================= CERTIFICATION ================= */}
-      <h3>Certifications</h3>
+      <h3 className="mt-10 mb-3 text-lg font-bold text-gray-700 border-b-2 border-gray-100 pb-1.5">Certifications</h3>
 
-      <input
-        name="certificationName"
-        placeholder="Certification Name *"
-        value={certification.certificationName}
-        onChange={(e) => handleChange(e, setCertification, certification)}
-      />
+      <div className="flex flex-col gap-3.5">
+        <input
+          name="certificationName"
+          placeholder="Certification Name *"
+          value={certification.certificationName}
+          onChange={(e) => handleChange(e, setCertification, certification)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+        />
 
-      <input
-        name="issuedBy"
-        placeholder="Issued By *"
-        value={certification.issuedBy}
-        onChange={(e) => handleChange(e, setCertification, certification)}
-      />
+        <input
+          name="issuedBy"
+          placeholder="Issued By *"
+          value={certification.issuedBy}
+          onChange={(e) => handleChange(e, setCertification, certification)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
+        />
 
-      <input
-        type="date"
-        name="validTill"
-        value={certification.validTill}
-        onChange={(e) => handleChange(e, setCertification, certification)}
-      />
+        <input
+          type="date"
+          name="validTill"
+          value={certification.validTill}
+          onChange={(e) => handleChange(e, setCertification, certification)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 bg-white"
+        />
 
-      <button onClick={submitCertification}>Add Certification</button>
+        <button onClick={submitCertification} className="w-full p-3.5 bg-gradient-to-r from-blue-600 to-blue-400 text-white font-bold rounded-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(49,130,206,0.35)] active:translate-y-0">
+          Add Certification
+        </button>
+      </div>
 
       {/* ================= CAPABILITY ================= */}
-      <h3>Capabilities</h3>
+      <h3 className="mt-10 mb-3 text-lg font-bold text-gray-700 border-b-2 border-gray-100 pb-1.5">Capabilities</h3>
 
-      <textarea
-        name="description"
-        placeholder="Describe your caregiving service"
-        value={capability.description}
-        onChange={(e) => handleChange(e, setCapability, capability)}
-      />
+      <div className="flex flex-col gap-3.5">
+        <textarea
+          name="description"
+          placeholder="Describe your caregiving service"
+          value={capability.description}
+          onChange={(e) => handleChange(e, setCapability, capability)}
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300 resize-y min-h-[90px]"
+        />
 
-      <button onClick={submitCapability}>Add Capability</button>
+        <button onClick={submitCapability} className="w-full p-3.5 bg-gradient-to-r from-blue-600 to-blue-400 text-white font-bold rounded-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(49,130,206,0.35)] active:translate-y-0">
+          Add Capability
+        </button>
+      </div>
     </div>
   );
 }

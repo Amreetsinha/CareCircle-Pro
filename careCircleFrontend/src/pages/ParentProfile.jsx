@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createParentProfile, getParentProfile } from "../api/parentApi";
-import "./ParentDashboard.css"; // Reuse dashboard styles or create new ones
 
 export default function ParentProfile() {
   const navigate = useNavigate();
@@ -60,53 +59,54 @@ export default function ParentProfile() {
   };
 
   return (
-    <div className="dashboard-container" style={{ padding: "2rem" }}>
-      <div className="dashboard-card" style={{ maxWidth: "600px", margin: "0 auto" }}>
-        <h2>Parent Profile</h2>
-        {message && <p className="status-message">{message}</p>}
+    <div className="min-h-screen pt-28 bg-gray-50 flex items-center justify-center p-8 font-sans">
+      <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-[600px] border border-gray-100">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Parent Profile</h2>
+        {message && <p className={`mb-6 text-center font-semibold ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}>{message}</p>}
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <input
-            type="text"
-            name="fullName"
-            placeholder="Full Name"
-            value={formData.fullName}
-            onChange={handleChange}
-            required
-            style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }}
-          />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-gray-600 ml-1">Full Name</label>
+            <input
+              type="text"
+              name="fullName"
+              placeholder="e.g. John Doe"
+              value={formData.fullName}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-400/10 transition-all placeholder-gray-300"
+            />
+          </div>
 
-          <input
-            type="tel"
-            name="phoneNumber"
-            placeholder="Phone Number"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            required
-            style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }}
-          />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-gray-600 ml-1">Phone Number</label>
+            <input
+              type="tel"
+              name="phoneNumber"
+              placeholder="e.g. +91 9876543210"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-400/10 transition-all placeholder-gray-300"
+            />
+          </div>
 
-          <textarea
-            name="address"
-            placeholder="Address"
-            value={formData.address}
-            onChange={handleChange}
-            required
-            style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc", minHeight: "80px" }}
-          />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-gray-600 ml-1">Address</label>
+            <textarea
+              name="address"
+              placeholder="Your full address..."
+              value={formData.address}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-400/10 transition-all placeholder-gray-300 min-h-[100px] resize-y"
+            />
+          </div>
 
           <button
             type="submit"
             disabled={loading}
-            style={{
-              padding: "10px",
-              backgroundColor: "#ff6b6b",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-              fontWeight: "bold"
-            }}
+            className="w-full p-3.5 bg-red-500 text-white font-bold rounded-xl shadow-md hover:bg-red-600 hover:-translate-y-0.5 transition-all active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed mt-2"
           >
             {loading ? "Saving..." : "Save Profile"}
           </button>
@@ -114,16 +114,7 @@ export default function ParentProfile() {
           <button
             type="button"
             onClick={handleSkip}
-            style={{
-              padding: "10px",
-              backgroundColor: "#6c757d",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-              fontWeight: "normal",
-              marginTop: "10px"
-            }}
+            className="w-full p-3.5 bg-gray-100 text-gray-600 font-semibold rounded-xl hover:bg-gray-200 transition-all mt-1"
           >
             Skip for now
           </button>
