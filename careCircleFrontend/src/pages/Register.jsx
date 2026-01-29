@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isValidPassword } from "../utils/passwordValidation";
-import "./Register.css";
 
 export default function Register() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    role: "parent",
+    role: "ROLE_PARENT",
     name: "",
     email: "",
     password: "",
@@ -17,10 +16,12 @@ export default function Register() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const roles = [
-    { value: "parent", label: "👨‍👩‍👧 Parent", description: "Looking for childcare services" },
-    { value: "nanny", label: "👩‍⚕️ Nanny/Caregiver", description: "Offering childcare services" }
+    { value: "ROLE_PARENT", label: "👨‍👩‍👧 Parent", description: "Looking for childcare services" },
+    { value: "ROLE_CARETAKER", label: "👩‍⚕️ Nanny/Caregiver", description: "Offering childcare services" }
   ];
 
   const handleChange = (e) => {
@@ -32,29 +33,24 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess(false);
 
-    // 🔐 Password validation
     if (!isValidPassword(form.password)) {
-      alert(
-        "Password must be at least 8 characters long, include 2 numbers and 1 special character."
-      );
+      setError("Password must be 8+ chars, with 2 numbers and 1 special symbol.");
       return;
     }
 
-    // Check if passwords match
     if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
 
     try {
       setLoading(true);
-
-      const response = await fetch("http://localhost:8080/auth/register", {
+      const response = await fetch("/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           role: form.role,
           name: form.name,
@@ -66,22 +62,40 @@ export default function Register() {
       });
 
       if (!response.ok) {
-        const errorMsg = await response.text();
-        throw new Error(errorMsg || "Registration failed");
+        const text = await response.text();
+        let errorMsg = text || "Registration failed";
+        try {
+          const data = JSON.parse(text);
+          errorMsg = data.message || data.error || text || "Registration failed";
+        } catch (e) { }
+
+        // Check for existing email keywords or 409 status
+        const isExistingEmail = response.status === 409 ||
+          /exist|already|taken|registered|conflict/i.test(errorMsg);
+
+        if (isExistingEmail) {
+          setError("Email already exists. Please login.");
+          setTimeout(() => navigate("/login"), 2000);
+          return;
+        }
+
+        throw new Error(errorMsg);
       }
 
-      const result = await response.json();
-      console.log("Registration success:", result);
-
-      // ✅ Redirect based on role
-      if (form.role === "parent") {
-        navigate("/parent-dashboard");
-      } else {
-        navigate("/nanny-dashboard");
-      }
+      setSuccess(true);
+      setTimeout(() => {
+        navigate(form.role === "ROLE_PARENT" ? "/parent-profile" : "/nanny-profile");
+      }, 1500);
 
     } catch (error) {
-      alert(error.message || "Something went wrong");
+      console.error("Registration error:", error);
+      const msg = error.message.toLowerCase();
+      if (/exist|already|taken|registered|conflict/i.test(msg)) {
+        setError("Email already exists. Please login.");
+        setTimeout(() => navigate("/login"), 2000);
+      } else {
+        setError(error.message || "Registration failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -90,134 +104,98 @@ export default function Register() {
   const selectedRole = roles.find(r => r.value === form.role);
 
   return (
-    <div className="register-container">
-      <div className="register-card">
-        <h2>Create Your Account</h2>
-        <p className="subtitle">Join our community and get started</p>
+    <div className="min-h-screen pt-28 flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-6 font-sans">
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[10%] right-[10%] w-[30%] h-[35%] bg-indigo-200/20 blur-[100px] rounded-full animate-float"></div>
+        <div className="absolute bottom-[10%] left-[10%] w-[30%] h-[35%] bg-pink-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
+      </div>
 
-        <form className="register-form" onSubmit={handleSubmit}>
-          {/* Role Selector */}
-          <div className="role-selector">
-            <label htmlFor="role">Who are you?</label>
-            <select
-              id="role"
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              className="role-dropdown"
-            >
-              {roles.map(r => (
-                <option key={r.value} value={r.value}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
-            {selectedRole && (
-              <p className="role-description">{selectedRole.description}</p>
+      <div className="relative z-10 w-full max-w-[540px] animate-fade-in-up">
+        <div className="glass-card rounded-[2.5rem] p-10 md:p-12 border-white/50 shadow-2xl">
+          <div className="text-center mb-10">
+            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-xl rotate-3 ${form.role === "parent" ? "bg-brand-parent shadow-brand-parent/20" : "bg-brand-nanny shadow-brand-nanny/20"
+              }`}>C</div>
+            <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Join CareCircle</h2>
+            <p className="text-slate-500 font-medium tracking-tight">Create your {form.role === "parent" ? "parent" : "caregiver"} account</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 ml-1 mb-2">Who are you?</label>
+              <select
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50 appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[right_10px_center] bg-[length:16px] pr-10"
+              >
+                {roles.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+              </select>
+              {selectedRole && <p className="mt-2 text-[11px] text-slate-500 italic px-3 py-1.5 bg-slate-50 rounded-lg border-l-2 border-indigo-500">{selectedRole.description}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-700 ml-1">Full Name</label>
+              <input name="name" value={form.name} onChange={handleChange} placeholder="Enter your full name" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-slate-700 ml-1">Email</label>
+                <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="name@example.com" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-slate-700 ml-1">Phone</label>
+                <input name="phone" value={form.phone} onChange={handleChange} placeholder="+91 00000 00000" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-slate-700 ml-1">Password</label>
+                <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="••••••••" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-slate-700 ml-1">Confirm</label>
+                <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="••••••••" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-700 ml-1">City</label>
+              <input name="city" value={form.city} onChange={handleChange} placeholder="Enter your city" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
+            </div>
+
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                <span className="text-red-500 text-lg">⚠️</span>
+                <p className="text-sm font-bold text-red-600">{error}</p>
+              </div>
             )}
-          </div>
 
-          {/* Full Name */}
-          <div className="form-group">
-            <label htmlFor="name">Full Name</label>
-            <input
-              id="name"
-              name="name"
-              placeholder="Enter your full name"
-              value={form.name}
-              required
-              onChange={handleChange}
-              className="input-field"
-            />
-          </div>
+            {success && (
+              <div className="p-4 bg-green-50 border border-green-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                <span className="text-green-500 text-lg">✅</span>
+                <p className="text-sm font-bold text-green-600">Account created! Redirecting...</p>
+              </div>
+            )}
 
-          {/* Email */}
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Enter your email"
-              value={form.email}
-              required
-              onChange={handleChange}
-              className="input-field"
-            />
-          </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-4 rounded-2xl font-extrabold text-white transition-all shadow-xl active:scale-95 btn-premium mt-4 ${form.role === "ROLE_PARENT" ? "bg-brand-parent hover:bg-brand-parent-dark shadow-brand-parent/20" : "bg-brand-nanny hover:bg-brand-nanny-dark shadow-brand-nanny/20"
+                }`}
+            >
+              {loading ? "Processing..." : "Create Account"}
+            </button>
+          </form>
 
-          {/* Password */}
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Enter password"
-              value={form.password}
-              required
-              onChange={handleChange}
-              className="input-field"
-            />
-            <p className="password-hint">
-              🔐 Minimum 8 characters, 2 numbers & 1 special character
+          <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+            <p className="text-slate-500 text-sm font-medium">
+              Already have an account?{" "}
+              <button onClick={() => navigate("/login", { state: { role: form.role === "parent" ? "ROLE_PARENT" : "ROLE_CARETAKER" } })} className="font-bold text-indigo-600 hover:underline">Sign In</button>
             </p>
           </div>
-
-          {/* Confirm Password */}
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirm password"
-              value={form.confirmPassword}
-              required
-              onChange={handleChange}
-              className="input-field"
-            />
-          </div>
-
-          {/* Phone */}
-          <div className="form-group">
-            <label htmlFor="phone">Phone Number</label>
-            <input
-              id="phone"
-              name="phone"
-              placeholder="Enter your phone number"
-              value={form.phone}
-              required
-              onChange={handleChange}
-              className="input-field"
-            />
-          </div>
-
-          {/* City */}
-          <div className="form-group">
-            <label htmlFor="city">City</label>
-            <input
-              id="city"
-              name="city"
-              placeholder="Enter your city"
-              value={form.city}
-              required
-              onChange={handleChange}
-              className="input-field"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button type="submit" disabled={loading} className="register-btn">
-            {loading ? "Creating Account..." : "Create Account"}
-          </button>
-        </form>
-
-        <div className="divider">already have an account?</div>
-
-        <p className="login-prompt">
-          <a href="/login">Sign in here</a>
-        </p>
+        </div>
       </div>
     </div>
   );
