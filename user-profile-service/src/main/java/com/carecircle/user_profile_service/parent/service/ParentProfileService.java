@@ -34,7 +34,8 @@ public interface ParentProfileService {
             String userEmail,
             String fullName,
             String phoneNumber,
-            String address
+            String address,
+            String city
     );
 
     /**

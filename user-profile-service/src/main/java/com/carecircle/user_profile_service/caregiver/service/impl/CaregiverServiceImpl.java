@@ -11,6 +11,7 @@ import com.carecircle.user_profile_service.caregiver.repository.CaregiverProfile
 import com.carecircle.user_profile_service.caregiver.service.CaregiverService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.carecircle.user_profile_service.common.service.CityIntegrationService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,15 +29,18 @@ public class CaregiverServiceImpl implements CaregiverService {
     private final CaregiverProfileRepository profileRepository;
     private final CaregiverCapabilityRepository capabilityRepository;
     private final CaregiverCertificationRepository certificationRepository;
+    private final CityIntegrationService cityService;
 
     public CaregiverServiceImpl(
             CaregiverProfileRepository profileRepository,
             CaregiverCapabilityRepository capabilityRepository,
-            CaregiverCertificationRepository certificationRepository
+            CaregiverCertificationRepository certificationRepository,
+            CityIntegrationService cityService
     ) {
         this.profileRepository = profileRepository;
         this.capabilityRepository = capabilityRepository;
         this.certificationRepository = certificationRepository;
+        this.cityService = cityService;
     }
 
     // ===== Caregiver Profile =====
@@ -62,6 +66,14 @@ public class CaregiverServiceImpl implements CaregiverService {
         	 throw new CaregiverProfileAlreadyExistsException(userEmail);
         });
 
+        // Resolve City ID
+        UUID cityId = null;
+        if (city != null && !city.isBlank()) {
+             cityId = cityService.getCityByName(city)
+                    .map(com.carecircle.user_profile_service.common.service.CityIntegrationService.CityDto::id)
+                    .orElse(null); // Or throw exception if strict
+        }
+
         CaregiverProfile profile = new CaregiverProfile(
         		userId,
                 userEmail,
@@ -72,6 +84,7 @@ public class CaregiverServiceImpl implements CaregiverService {
                 addressLine1,
                 addressLine2,
                 city,
+                cityId,
                 state,
                 pincode,
                 country,
@@ -105,6 +118,14 @@ public class CaregiverServiceImpl implements CaregiverService {
     ) {
         CaregiverProfile profile = getMyProfile(userId);
 
+        // Resolve City ID if changed or needed
+        UUID cityId = profile.getCityId();
+        if (city != null && !city.equals(profile.getCity())) {
+             cityId = cityService.getCityByName(city)
+                    .map(com.carecircle.user_profile_service.common.service.CityIntegrationService.CityDto::id)
+                    .orElse(cityId); 
+        }
+
         // Controlled updates only (no verification, no ratings)
         profile = new CaregiverProfile(
         		profile.getUserId(),
@@ -116,6 +137,7 @@ public class CaregiverServiceImpl implements CaregiverService {
                 addressLine1,
                 addressLine2,
                 city,
+                cityId,
                 state,
                 pincode,
                 country,

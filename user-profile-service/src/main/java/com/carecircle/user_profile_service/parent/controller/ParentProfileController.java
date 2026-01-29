@@ -52,7 +52,8 @@ public class ParentProfileController {
                 userEmail,
                 request.getFullName(),
                 request.getPhoneNumber(),
-                request.getAddress()
+                request.getAddress(),
+                request.getCity()
         );
 
         return mapToResponse(profile);

@@ -22,9 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ParentProfileServiceImpl implements ParentProfileService{
 
     private final ParentProfileRepository parentProfileRepository;
+    private final com.carecircle.user_profile_service.common.service.CityIntegrationService cityService;
 
-    public ParentProfileServiceImpl(ParentProfileRepository parentProfileRepository) {
+    public ParentProfileServiceImpl(
+            ParentProfileRepository parentProfileRepository,
+            com.carecircle.user_profile_service.common.service.CityIntegrationService cityService
+    ) {
         this.parentProfileRepository = parentProfileRepository;
+        this.cityService = cityService;
     }
 
     /**
@@ -43,15 +48,24 @@ public class ParentProfileServiceImpl implements ParentProfileService{
             String userEmail,
             String fullName,
             String phoneNumber,
-            String address
+            String address,
+            String city
     ) {
         boolean exists = parentProfileRepository.findByUserEmail(userEmail).isPresent();
         if (exists) {
         	 throw new ParentProfileAlreadyExistsException(userEmail);
         }
 
+        // Resolve City ID
+        UUID cityId = null;
+        if (city != null && !city.isBlank()) {
+             cityId = cityService.getCityByName(city)
+                    .map(com.carecircle.user_profile_service.common.service.CityIntegrationService.CityDto::id)
+                    .orElse(null);
+        }
+
         ParentProfile profile =
-                new ParentProfile( userId, userEmail, fullName, phoneNumber, address);
+                new ParentProfile(userId, userEmail, fullName, phoneNumber, address, cityId);
 
         return parentProfileRepository.save(profile);
     }
