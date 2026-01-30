@@ -28,6 +28,13 @@ spring:
           predicates:
             - Path=/admin/**
 
+        - id: matching-booking
+          uri: http://localhost:8085
+          predicates:
+            - Path=/matching-booking/**
+          filters:
+            - StripPrefix=1
+
 jwt:
   secret: carecircle-auth-secret-key-which-is-at-least-32-bytes-long
 
