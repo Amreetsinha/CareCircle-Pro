@@ -11,9 +11,12 @@ import com.carecircle.user_profile_service.caregiver.model.CaregiverProfile;
 import com.carecircle.user_profile_service.caregiver.repository.CaregiverProfileRepository;
 import com.carecircle.user_profile_service.parent.repository.ParentProfileRepository;
 import com.carecircle.user_profile_service.child.repository.ChildRepository;
+import com.carecircle.user_profile_service.common.service.MatchingIntegrationService;
 import com.carecircle.user_profile_service.admin.dto.ParentSummaryResponse;
 import com.carecircle.user_profile_service.admin.dto.CaregiverSummaryResponse;
 import com.carecircle.user_profile_service.admin.dto.AdminStatisticsResponse;
+import com.carecircle.user_profile_service.parent.repository.ParentProfileRepository;
+import com.carecircle.user_profile_service.child.repository.ChildRepository; 
 
 import java.util.UUID;
 
@@ -29,7 +32,7 @@ public class AdminServiceImpl implements AdminService {
 
         private final AdminProfileRepository adminProfileRepository;
         private final VerificationAuditRepository auditRepository;
-        private final MatchingService matchingService; // Added MatchingService
+        private final MatchingIntegrationService matchingIntegrationService; // Added MatchingService
 
         private final CaregiverProfileRepository caregiverProfileRepository;
         private final ParentProfileRepository parentProfileRepository;
@@ -50,7 +53,7 @@ public class AdminServiceImpl implements AdminService {
 
         // Validate City
         if (city != null && !city.isBlank()) {
-             matchingService.getCityByName(city)
+        	matchingIntegrationService.getCityByName(city)
                      .orElseThrow(() -> new IllegalArgumentException("City not found: " + city));
         }
 
@@ -96,8 +99,8 @@ public class AdminServiceImpl implements AdminService {
         // Validate City if changed/provided
         if (city != null && !city.equals(admin.getCity())) {
             if (!city.isBlank()) {
-                matchingService.getCityByName(city)
-                        .orElseThrow(() -> new IllegalArgumentException("City not found: " + city));
+            	matchingIntegrationService.getCityByName(city)
+                        .orElseThrow(() -> new CityNotFoundException("City not found: " + city));
             }
             admin.setCity(city);
         }
@@ -198,13 +201,16 @@ public class AdminServiceImpl implements AdminService {
                         AdminProfileRepository adminProfileRepository,
                         VerificationAuditRepository auditRepository,
                         CaregiverProfileRepository caregiverProfileRepository,
-                        com.carecircle.user_profile_service.parent.repository.ParentProfileRepository parentProfileRepository,
-                        com.carecircle.user_profile_service.child.repository.ChildRepository childRepository) {
+                        ParentProfileRepository parentProfileRepository,
+                        ChildRepository childRepository, 
+                        MatchingIntegrationService matchingIntegrationService
+                        ) {
                 this.adminProfileRepository = adminProfileRepository;
                 this.auditRepository = auditRepository;
                 this.caregiverProfileRepository = caregiverProfileRepository;
                 this.parentProfileRepository = parentProfileRepository;
                 this.childRepository = childRepository;
+                this.matchingIntegrationService = matchingIntegrationService;
         }
 
         // =========================
