@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
 import PasswordInput from "../components/PasswordInput";
 import { register } from "../api/authApi";
+import logo from "../assets/logo.png";
 
 export default function RegisterParent() {
   const [email, setEmail] = useState("");
@@ -20,18 +20,16 @@ export default function RegisterParent() {
 
     try {
       await register(email, password, "ROLE_PARENT");
-
-      setSuccessMessage("OTP Sent to email! Redirecting to verification...");
+      setSuccessMessage("Account created successfully!");
       setTimeout(() => navigate("/verify-account", { state: { email, role: "ROLE_PARENT" } }), 1500);
-
     } catch (error) {
       console.error("Registration error:", error);
       const msg = error.message ? error.message.toLowerCase() : "unknown error";
       if (/exist|already|taken|conflict/i.test(msg)) {
-        setError("Email already exists. Please login.");
+        setError("This email is already linked to an Apple ID style account.");
         setTimeout(() => navigate("/login", { state: { role: "ROLE_PARENT" } }), 2000);
       } else {
-        setError(error.message || "Server error. Please try again later.");
+        setError(error.message || "Could not create account.");
       }
     } finally {
       setLoading(false);
@@ -39,78 +37,76 @@ export default function RegisterParent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5F5F7] p-6 relative overflow-hidden">
-      {/* Background Ambience */}
-      <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-blue-100/40 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen flex flex-col items-center pt-24 bg-[#f5f5f7] px-6">
 
-      <div className="w-full max-w-[420px] relative z-10 animate-fade-in">
-        <div className="glass-panel p-8 md:p-10 rounded-[2rem] shadow-2xl shadow-blue-500/5">
-          <div className="text-center mb-8">
-            <img src={logo} alt="CareCircle Logo" className="w-16 h-16 mx-auto mb-6 drop-shadow-md rounded-2xl" />
-            <h2 className="text-2xl font-semibold text-[#1D1D1F] tracking-tight">Create Account</h2>
-            <p className="text-[#86868b] text-sm mt-2">Join CareCircle as a Parent</p>
+      <div className="mb-8 text-center">
+        <img src={logo} alt="Logo" className="h-10 w-10 mx-auto mb-4 opacity-80" />
+        <h1 className="text-[28px] font-semibold text-[#1d1d1f]">Create your CareCircle ID</h1>
+        <p className="text-[#86868b] mt-2 text-[17px]">One account for all your family care needs.</p>
+      </div>
+
+      <div className="w-full max-w-[440px]">
+
+        {error && (
+          <div className="mb-6 bg-[#fff2f2] p-3 rounded-xl border border-[#ff3b30]/20 text-[#ff3b30] text-sm font-medium text-center">
+            {error}
           </div>
+        )}
 
-          {error && (
-            <div className="mb-6 bg-red-50 p-3 rounded-xl border border-red-100 text-red-600 text-sm font-medium text-center animate-fade-in">
-              {error}
-            </div>
-          )}
+        {successMessage && (
+          <div className="mb-6 bg-[#f2fff4] p-3 rounded-xl border border-[#34c759]/20 text-[#34c759] text-sm font-medium text-center">
+            {successMessage}
+          </div>
+        )}
 
-          {successMessage && (
-            <div className="mb-6 bg-green-50 p-3 rounded-xl border border-green-100 text-green-600 text-sm font-medium text-center animate-fade-in">
-              {successMessage}
-            </div>
-          )}
+        <form onSubmit={handleRegister} className="space-y-8">
 
-          <form onSubmit={handleRegister} className="space-y-5">
-            <div className="input-group-dynamic">
+          <div className="bg-white rounded-xl border border-[#d2d2d7] overflow-hidden shadow-sm">
+            <div className="border-b border-[#d2d2d7]">
               <input
-                id="email"
-                className="input-dynamic peer"
                 type="email"
-                placeholder=" "
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-4 text-[17px] outline-none placeholder-[#86868b]"
+                placeholder="name@example.com"
                 required
               />
-              <label htmlFor="email" className="label-dynamic">
-                Email Address
-              </label>
             </div>
-
-            <PasswordInput
-              id="password"
-              placeholder="Create Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              showStrengthMeter={true}
-            />
-
-            <button
-              className="btn-primary w-full justify-center flex items-center gap-2"
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? "Creating Account..." : "Sign Up"}
-            </button>
-          </form>
-
-          <div className="mt-8 text-center border-t border-slate-100 pt-6">
-            <p className="text-[#86868b] text-sm">
-              Already have an account?{" "}
-              <button
-                onClick={() => navigate("/login", { state: { role: "ROLE_PARENT" } })}
-                className="text-[#0071e3] font-medium hover:underline"
-              >
-                Log In
-              </button>
-            </p>
+            <div>
+              <PasswordInput
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                showStrengthMeter={true}
+                className="border-none focus-within:ring-0"
+              />
+            </div>
           </div>
+
+          <div className="flex gap-3 items-start">
+            <input type="checkbox" id="news" className="mt-1" />
+            <label htmlFor="news" className="text-sm text-[#1d1d1f] leading-snug">
+              Announcements
+              <span className="block text-[#86868b] text-xs">Receive emails about CareCircle products, news, and events.</span>
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-apple-primary w-full py-3 text-[17px]"
+          >
+            {loading ? "Creating..." : "Continue"}
+          </button>
+
+        </form>
+
+        <div className="mt-8 text-center">
+          <button onClick={() => navigate("/login")} className="text-[#0071e3] hover:underline text-sm">
+            Already have an account? Sign In used
+          </button>
         </div>
       </div>
     </div>
   );
 }
-
-

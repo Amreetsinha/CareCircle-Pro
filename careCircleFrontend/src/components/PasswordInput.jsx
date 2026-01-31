@@ -10,100 +10,88 @@ const PasswordInput = ({
 }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [strength, setStrength] = useState(0); // 0-4
-    const [strengthLabel, setStrengthLabel] = useState("");
+    const [isFocused, setIsFocused] = useState(false);
 
     const calculateStrength = (pass) => {
         let score = 0;
         if (!pass) return 0;
-
         if (pass.length > 5) score += 1;
         if (pass.length > 8) score += 1;
         if (/[0-9]/.test(pass)) score += 1;
         if (/[^A-Za-z0-9]/.test(pass)) score += 1;
-
         return score;
     };
 
     useEffect(() => {
-        const score = calculateStrength(value);
-        setStrength(score);
-
-        switch (score) {
-            case 0: setStrengthLabel(""); break;
-            case 1: setStrengthLabel("Weak"); break;
-            case 2: setStrengthLabel("Fair"); break;
-            case 3: setStrengthLabel("Strong"); break;
-            case 4: setStrengthLabel("Very Strong"); break;
-            default: setStrengthLabel("");
-        }
+        setStrength(calculateStrength(value));
     }, [value]);
 
-    const getStrengthColor = () => {
+    const getStrengthInfo = () => {
         switch (strength) {
-            case 1: return "bg-red-400";
-            case 2: return "bg-orange-400";
-            case 3: return "bg-blue-400";
-            case 4: return "bg-green-500";
-            default: return "bg-gray-200";
+            case 0: return { label: "Enter password", color: "bg-gray-200", text: "text-gray-400" };
+            case 1: return { label: "Weak", color: "bg-[#ff3b30]", text: "text-[#ff3b30]" };
+            case 2: return { label: "Medium", color: "bg-[#ff9500]", text: "text-[#ff9500]" };
+            case 3: return { label: "Strong", color: "bg-[#0071e3]", text: "text-[#0071e3]" };
+            case 4: return { label: "Very Strong", color: "bg-[#34c759]", text: "text-[#34c759]" };
+            default: return { label: "", color: "bg-gray-200", text: "text-gray-400" };
         }
     };
 
+    const { label, color, text } = getStrengthInfo();
+
     return (
-        <div className={`w-full ${className}`}>
-            <div className="input-group-dynamic relative">
+        <div className="w-full">
+            {/* Input Wrapper */}
+            <div
+                className={`relative transition-all duration-300 ${className} ${isFocused ? "ring-4 ring-[#0071e3]/10 z-10" : ""
+                    }`}
+            >
                 <input
                     id={id}
                     type={showPassword ? "text" : "password"}
                     value={value}
                     onChange={onChange}
-                    placeholder=" "
-                    className="input-dynamic peer pr-12" // Added pr-12 for icon space
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                    placeholder={placeholder}
+                    className="w-full h-[56px] px-4 text-[17px] bg-white bg-opacity-80 backdrop-blur-md outline-none text-[#1d1d1f] placeholder-[#86868b] rounded-xl transition-all"
                     required
                 />
-                <label htmlFor={id} className="label-dynamic">
-                    {placeholder}
-                </label>
 
-                {/* Toggle Visibility Button */}
+                {/* Visual Toggle */}
                 <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0071e3] transition-colors focus:outline-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-gray-100 transition-colors text-[#0071e3] font-medium text-sm"
                     tabIndex="-1"
                 >
-                    {showPassword ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-                            <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-                            <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7c.44 0 .87-.03 1.28-.08" />
-                            <line x1="2" x2="22" y1="2" y2="22" />
-                        </svg>
-                    ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                            <circle cx="12" cy="12" r="3" />
-                        </svg>
-                    )}
+                    {showPassword ? "Hide" : "Show"}
                 </button>
             </div>
 
-            {/* Strength Meter */}
-            {showStrengthMeter && value && (
-                <div className="mt-2 animate-fade-in">
-                    <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs font-medium text-gray-500">Security</span>
-                        <span className={`text-xs font-semibold ${strength <= 1 ? "text-red-500" :
-                                strength === 2 ? "text-orange-500" :
-                                    strength === 3 ? "text-blue-500" : "text-green-600"
-                            }`}>
-                            {strengthLabel}
-                        </span>
+            {/* Dynamic Strength Meter */}
+            {showStrengthMeter && (
+                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${value ? "max-h-20 opacity-100 mt-3" : "max-h-0 opacity-0"}`}>
+
+                    {/* Progress Bar (Segmented style) */}
+                    <div className="flex gap-1 h-1.5 mb-2">
+                        {[1, 2, 3, 4].map((step) => (
+                            <div
+                                key={step}
+                                className={`flex-1 rounded-full transition-all duration-500 ${strength >= step ? color : "bg-gray-200"
+                                    }`}
+                            />
+                        ))}
                     </div>
-                    <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                            className={`h-full transition-all duration-300 ease-out ${getStrengthColor()}`}
-                            style={{ width: `${(strength / 4) * 100}%` }}
-                        ></div>
+
+                    {/* Text Label */}
+                    <div className="flex justify-between items-center px-1">
+                        <span className={`text-xs font-semibold tracking-wide transition-colors duration-300 ${text}`}>
+                            {label}
+                        </span>
+                        {strength === 4 && (
+                            <span className="text-xs text-[#34c759] font-medium animate-pulse">✓ Perfect</span>
+                        )}
                     </div>
                 </div>
             )}

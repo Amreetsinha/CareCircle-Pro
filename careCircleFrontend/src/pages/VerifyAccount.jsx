@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyAccount } from "../api/authApi";
+import logo from "../assets/logo.png";
 
 export default function VerifyAccount() {
     const location = useLocation();
@@ -19,7 +19,6 @@ export default function VerifyAccount() {
             setEmail(location.state.email);
             setRole(location.state.role);
         } else {
-            // If accessed without state, redirect to login or home
             navigate("/login");
         }
     }, [location, navigate]);
@@ -31,83 +30,78 @@ export default function VerifyAccount() {
         setMessage("");
 
         if (!otp) {
-            setError("Please enter the OTP.");
+            setError("Please enter the verification code.");
             setLoading(false);
             return;
         }
 
         try {
             await verifyAccount(email, otp, role);
-            setMessage("Account verified successfully! Redirecting to login...");
+            setMessage("Verified!");
             setTimeout(() => {
                 navigate("/login", { state: { role } });
-            }, 2000);
+            }, 1000);
         } catch (err) {
-            setError(err.message || "Verification failed. Please check OTP and try again.");
+            setError(err.message || "Invalid code. Please try again.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-6 font-sans">
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-indigo-200/20 blur-[100px] rounded-full animate-float"></div>
-                <div className="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-pink-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
+        <div className="min-h-screen flex flex-col items-center pt-32 bg-[#f5f5f7] px-6">
+
+            <div className="mb-10 text-center">
+                <img src={logo} alt="Logo" className="h-12 w-12 mx-auto mb-4 opacity-80" />
+                <h1 className="text-[28px] font-semibold text-[#1d1d1f]">Two-Factor Authentication</h1>
+                <p className="text-[#86868b] mt-2 text-[17px]">
+                    Enter the code sent to <span className="font-medium text-[#1d1d1f]">{email}</span>.
+                </p>
             </div>
 
-            <div className="relative z-10 w-full max-w-[480px] animate-fade-in-up">
-                <div className="glass-card rounded-[2.5rem] p-10 md:p-12 border-white/50 shadow-2xl">
-                    <div className="text-center mb-8">
-                        <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Verify Account</h2>
-                        <p className="text-slate-500 font-medium">
-                            Enter the OTP sent to <span className="font-bold text-indigo-600">{email}</span>
-                        </p>
+            <div className="w-full max-w-[440px] bg-white rounded-2xl p-10 shadow-sm border border-[#d2d2d7]">
+
+                {error && (
+                    <div className="mb-6 bg-[#fff2f2] p-3 rounded-xl border border-[#ff3b30]/20 text-[#ff3b30] text-sm font-medium text-center">
+                        {error}
+                    </div>
+                )}
+
+                {message && (
+                    <div className="mb-6 bg-[#f2fff4] p-3 rounded-xl border border-[#34c759]/20 text-[#34c759] text-sm font-medium text-center">
+                        {message}
+                    </div>
+                )}
+
+                <form onSubmit={handleVerify} className="space-y-8">
+                    <div>
+                        <input
+                            type="text"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            placeholder="Code"
+                            className="input-apple text-center text-2xl tracking-widest font-mono"
+                            maxLength={6}
+                            required
+                        />
                     </div>
 
-                    <form onSubmit={handleVerify} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700 ml-1">OTP Code</label>
-                            <input
-                                type="text"
-                                placeholder="Enter OTP"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value)}
-                                required
-                                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50"
-                            />
-                        </div>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="btn-apple-primary w-full py-3 text-[17px]"
+                    >
+                        {loading ? "Verifying..." : "Verify"}
+                    </button>
 
-                        {error && (
-                            <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                                <span className="text-red-500 text-lg">⚠️</span>
-                                <p className="text-sm font-bold text-red-600">{error}</p>
-                            </div>
-                        )}
-
-                        {message && (
-                            <div className="p-4 bg-green-50 border border-green-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                                <span className="text-green-500 text-lg">✅</span>
-                                <p className="text-sm font-bold text-green-600">{message}</p>
-                            </div>
-                        )}
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-4 rounded-2xl font-extrabold text-white transition-all shadow-xl active:scale-95 bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200"
-                        >
-                            {loading ? "Verifying..." : "Verify Account"}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => navigate("/login")}
-                            className="w-full text-center text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors mt-4"
-                        >
-                            Back to Login
-                        </button>
-                    </form>
-                </div>
+                    <button
+                        type="button"
+                        onClick={() => navigate("/login")}
+                        className="w-full text-center text-[#0071e3] text-sm hover:underline"
+                    >
+                        Back to Sign In
+                    </button>
+                </form>
             </div>
         </div>
     );

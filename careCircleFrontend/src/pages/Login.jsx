@@ -30,7 +30,6 @@ export default function Login() {
     try {
       const data = await login(email, password, role);
       const token = data.accessToken;
-
       if (!token) throw new Error("Token not received.");
 
       const decoded = jwtDecode(token);
@@ -67,101 +66,106 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5F5F7] p-6 relative overflow-hidden">
-      {/* Background Ambience */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-100/40 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-100/40 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen flex flex-col items-center pt-32 bg-[#f5f5f7] px-6">
 
-      <div className="w-full max-w-[420px] relative z-10 animate-fade-in">
-        <div className="glass-panel p-8 md:p-10 rounded-[2rem] shadow-2xl shadow-indigo-500/5">
-          <div className="text-center mb-8">
-            <img src={logo} alt="CareCircle Logo" className="w-20 h-20 mx-auto mb-6 drop-shadow-md rounded-2xl" />
-            <h2 className="text-2xl font-semibold text-[#1D1D1F] tracking-tight">Welcome back</h2>
-            <p className="text-[#86868b] text-sm mt-2">Sign in to your account</p>
-          </div>
+      {/* Apple ID Style Header */}
+      <div className="mb-10 text-center">
+        <img src={logo} alt="Logo" className="h-12 w-12 mx-auto mb-4 opacity-80" />
+        <h1 className="text-[28px] font-semibold text-[#1d1d1f]">Sign in to CareCircle</h1>
+      </div>
+
+      <div className="w-full max-w-[440px] bg-white rounded-2xl p-10 shadow-sm border border-[#d2d2d7]">
+        <form onSubmit={handleLogin} className="space-y-6">
 
           {/* Role Toggle */}
-          <div className="flex p-1 bg-[#F5F5F7] rounded-xl mb-8">
+          <div className="flex justify-center p-1 bg-[#f5f5f7] rounded-lg mb-4">
             <button
               type="button"
               onClick={() => setRole("ROLE_PARENT")}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${role === "ROLE_PARENT" ? "bg-white text-[#1D1D1F] shadow-sm" : "text-[#86868b] hover:text-[#1D1D1F]"
-                }`}
+              className={`flex-1 py-1.5 rounded-md text-[13px] font-medium transition-all ${role === "ROLE_PARENT" ? "bg-white shadow-sm text-[#1d1d1f]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
             >
               Parent
             </button>
             <button
               type="button"
               onClick={() => setRole("ROLE_CARETAKER")}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${role === "ROLE_CARETAKER" ? "bg-white text-[#1D1D1F] shadow-sm" : "text-[#86868b] hover:text-[#1D1D1F]"
-                }`}
+              className={`flex-1 py-1.5 rounded-md text-[13px] font-medium transition-all ${role === "ROLE_CARETAKER" ? "bg-white shadow-sm text-[#1d1d1f]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
             >
               Caregiver
             </button>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div className="input-group-dynamic">
+          <div className="space-y-4">
+            <div>
               <input
-                id="email"
                 type="email"
-                placeholder=" "
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-dynamic peer"
+                className="input-apple"
+                placeholder="Email or Phone Number"
                 required
               />
-              <label htmlFor="email" className="label-dynamic">
-                Email Address
-              </label>
             </div>
-
-            <PasswordInput
-              id="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              showStrengthMeter={false}
-            />
-            <div className="flex justify-end mt-2">
-              <button
-                type="button"
-                onClick={() => navigate("/forgot-password")}
-                className="text-xs font-semibold text-[#86868b] hover:text-[#0071e3] transition-colors"
-              >
-                Forgot password?
-              </button>
+            <div>
+              <PasswordInput
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                showStrengthMeter={false}
+                className="border border-[#d2d2d7] rounded-lg overflow-hidden focus-within:ring-4 focus-within:ring-[#0071e3]/20 focus-within:border-[#0071e3]"
+              />
             </div>
+          </div>
 
-            {error && (
-              <div className="p-3 bg-red-50 text-red-600 text-sm font-medium rounded-xl text-center border border-red-100 animate-fade-in">
-                {error}
-              </div>
-            )}
+          {error && (
+            <div className="text-[#ff3b30] text-sm text-center">
+              {error}
+            </div>
+          )}
 
+          <div className="flex flex-col gap-4 mt-8">
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full justify-center flex items-center gap-2"
+              className="btn-apple-primary w-full py-3 text-[17px] flex justify-center items-center gap-2"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading && <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>}
+              Sign In
             </button>
-          </form>
 
-          <div className="mt-8 text-center">
-            <p className="text-[#86868b] text-sm">
-              New to CareCircle?{" "}
-              <button
-                onClick={() => navigate(role === "ROLE_PARENT" ? "/register-parent" : "/register-nanny")}
-                className="text-[#0071e3] font-medium hover:underline"
-              >
-                Create Account
-              </button>
-            </p>
+            <div className="flex justify-between items-center mt-2">
+              <div className="h-[1px] bg-[#d2d2d7] flex-1"></div>
+              <span className="px-4 text-[#86868b] text-sm">or</span>
+              <div className="h-[1px] bg-[#d2d2d7] flex-1"></div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate(role === "ROLE_PARENT" ? "/register-parent" : "/register-nanny")}
+              className="text-[#0071e3] text-sm font-medium hover:underline text-center"
+            >
+              Create your CareCircle ID
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="text-[#0071e3] text-sm hover:underline text-center -mt-2"
+            >
+              Forgotten your password?
+            </button>
           </div>
-        </div>
+
+        </form>
       </div>
+
+      <footer className="mt-12 text-[#86868b] text-xs">
+        <p>Copyright © 2026 CareCircle Inc. All rights reserved.</p>
+        <div className="flex gap-4 justify-center mt-2">
+          <a href="#" className="hover:underline">Privacy Policy</a>
+          <span>|</span>
+          <a href="#" className="hover:underline">Terms of Use</a>
+        </div>
+      </footer>
     </div>
   );
 }
-
