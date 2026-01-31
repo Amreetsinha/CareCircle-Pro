@@ -1,29 +1,20 @@
 package com.carecircle.user_profile_service.admin.dto;
 
-import java.util.UUID;
-
 import jakarta.validation.constraints.NotBlank;
 
-public class CreateAdminProfileRequest {
+/**
+ * Request DTO for updating an admin profile.
+ */
+public class UpdateAdminProfileRequest {
 
-    @NotBlank
     private String fullName;
-
-    @NotBlank
     private String phoneNumber;
-
-    @NotBlank
     private String adminLevel;
     
-    private UUID userId; 
-
-    @NotBlank(message = "Address is required")
     private String address;
-
-    @NotBlank(message = "City is required")
     private String city;
 
-    public CreateAdminProfileRequest() {}
+    public UpdateAdminProfileRequest() {}
 
     public String getFullName() {
         return fullName;
@@ -36,10 +27,6 @@ public class CreateAdminProfileRequest {
     public String getAdminLevel() {
         return adminLevel;
     }
-    
-    public UUID getUserId() {
-    	return userId; 
-    }
 
     public String getAddress() {
         return address;
@@ -47,5 +34,25 @@ public class CreateAdminProfileRequest {
 
     public String getCity() {
         return city;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setAdminLevel(String adminLevel) {
+        this.adminLevel = adminLevel;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 }
