@@ -170,10 +170,12 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-4 rounded-2xl font-extrabold text-white transition-all shadow-xl active:scale-95 btn-premium mt-4 ${form.role === "ROLE_PARENT" ? "bg-brand-parent hover:bg-brand-parent-dark shadow-brand-parent/20" : "bg-brand-nanny hover:bg-brand-nanny-dark shadow-brand-nanny/20"
-                }`}
+              className={`w-full py-4 rounded-2xl font-extrabold text-white transition-all shadow-xl active:scale-95 mt-4 
+                ${form.role === "ROLE_PARENT" ? "bg-[#0071e3] hover:bg-[#0077ed]" :
+                  form.role === "ROLE_CARETAKER" ? "bg-[#af52de] hover:bg-[#9f4bc9]" :
+                    "bg-[#1d1d1f] hover:bg-[#2d2d2f]"}`}
             >
-              {loading ? "Processing..." : "Create Account"}
+              {loading ? "Processing..." : "Register"}
             </button>
           </form>
 
