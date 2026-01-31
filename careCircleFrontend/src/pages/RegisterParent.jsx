@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
+import PasswordInput from "../components/PasswordInput";
+
 export default function RegisterParent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,7 +30,6 @@ export default function RegisterParent() {
         }),
       });
 
-
       const text = await response.text();
       let data = null;
       try { data = JSON.parse(text); } catch (e) { }
@@ -46,7 +48,7 @@ export default function RegisterParent() {
         throw new Error(serverMessage);
       }
 
-      setSuccessMessage("Registered successfully! Redirecting to login...");
+      setSuccessMessage("Registered successfully! Redirecting...");
       setTimeout(() => navigate("/login", { state: { role: "ROLE_PARENT" } }), 2000);
 
     } catch (error) {
@@ -64,50 +66,78 @@ export default function RegisterParent() {
   };
 
   return (
-    <div className="min-h-screen pt-28 flex items-center justify-center bg-gradient-to-br from-[#fdfbfb] to-[#ebedee] p-5">
-      <div className="bg-white w-full max-w-[420px] p-[30px] rounded-[14px] shadow-[0_12px_35px_rgba(0,0,0,0.18)]">
-        <h2 className="text-center mb-5 text-[#065f46] font-bold text-2xl">Register as Parent</h2>
+    <div className="min-h-screen flex items-center justify-center bg-[#F5F5F7] p-6 relative overflow-hidden">
+      {/* Background Ambience */}
+      <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-blue-100/40 rounded-full blur-[120px] pointer-events-none"></div>
 
-        {error && (
-          <div className="text-center text-red-600 font-semibold mb-3 p-2 bg-red-50 rounded-lg animate-in fade-in slide-in-from-top-1 duration-300">
-            ⚠️ {error}
+      <div className="w-full max-w-[420px] relative z-10 animate-fade-in">
+        <div className="glass-panel p-8 md:p-10 rounded-[2rem] shadow-2xl shadow-blue-500/5">
+          <div className="text-center mb-8">
+            <img src={logo} alt="CareCircle Logo" className="w-16 h-16 mx-auto mb-6 drop-shadow-md rounded-2xl" />
+            <h2 className="text-2xl font-semibold text-[#1D1D1F] tracking-tight">Create Account</h2>
+            <p className="text-[#86868b] text-sm mt-2">Join CareCircle as a Parent</p>
           </div>
-        )}
 
-        {successMessage && (
-          <div className="text-center text-emerald-600 font-semibold mb-3 p-2 bg-emerald-50 rounded-lg animate-in fade-in slide-in-from-top-1 duration-300">
-            ✅ {successMessage}
+          {error && (
+            <div className="mb-6 bg-red-50 p-3 rounded-xl border border-red-100 text-red-600 text-sm font-medium text-center animate-fade-in">
+              {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mb-6 bg-green-50 p-3 rounded-xl border border-green-100 text-green-600 text-sm font-medium text-center animate-fade-in">
+              {successMessage}
+            </div>
+          )}
+
+          <form onSubmit={handleRegister} className="space-y-5">
+            <div className="input-group-dynamic">
+              <input
+                id="email"
+                className="input-dynamic peer"
+                type="email"
+                placeholder=" "
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <label htmlFor="email" className="label-dynamic">
+                Email Address
+              </label>
+            </div>
+
+            <PasswordInput
+              id="password"
+              placeholder="Create Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              showStrengthMeter={true}
+            />
+
+            <button
+              className="btn-primary w-full justify-center flex items-center gap-2"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "Creating Account..." : "Sign Up"}
+            </button>
+          </form>
+
+          <div className="mt-8 text-center border-t border-slate-100 pt-6">
+            <p className="text-[#86868b] text-sm">
+              Already have an account?{" "}
+              <button
+                onClick={() => navigate("/login", { state: { role: "ROLE_PARENT" } })}
+                className="text-[#0071e3] font-medium hover:underline"
+              >
+                Log In
+              </button>
+            </p>
           </div>
-        )}
-
-        <form onSubmit={handleRegister}>
-          <input
-            className="w-full p-3 mb-[14px] rounded-lg border border-[#cbd5e0] text-sm focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <input
-            className="w-full p-3 mb-[14px] rounded-lg border border-[#cbd5e0] text-sm focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <button
-            className="w-full p-3 border-none rounded-lg bg-gradient-to-br from-[#10b981] to-[#34d399] text-white text-base font-semibold cursor-pointer transition-all duration-300 hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] disabled:opacity-70 disabled:cursor-not-allowed"
-            type="submit"
-            disabled={loading}
-          >
-            {loading ? "Registering..." : "Register"}
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
 }
+
+

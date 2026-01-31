@@ -5,111 +5,118 @@ export default function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans overflow-x-hidden">
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-20 pb-20 px-6 bg-gradient-to-br from-white via-slate-50 to-indigo-50/30">
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-200/20 blur-[120px] rounded-full animate-float"></div>
-          <div className="absolute top-[20%] -right-[5%] w-[30%] h-[30%] bg-pink-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
-        </div>
+    <div className="min-h-screen bg-[#F5F5F7] font-sans selection:bg-[#007AFF] selection:text-white overflow-hidden">
 
-        <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
-          <div className="text-left animate-fade-in-up">
-            <span className="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-wider text-indigo-600 uppercase bg-indigo-50 rounded-full">
-              Trusted Childcare Solutions
-            </span>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] mb-6">
-              Modern Care for <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
-                Modern Families
-              </span>
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6">
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex flex-col items-center text-center animate-fade-in">
+            <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#d2d2d7] shadow-sm animate-slide-up" style={{ animationDelay: '0.1s' }}>
+              <span className="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
+              <span className="text-xs font-semibold text-[#1D1D1F] tracking-wide uppercase">Verified Pros Available Now</span>
+            </div>
+
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tighter text-[#1D1D1F] mb-8 leading-[1.05] animate-slide-up" style={{ animationDelay: '0.2s' }}>
+              Care. <br className="md:hidden" />
+              <span className="text-[#86868b]">Reimagined.</span>
             </h1>
-            <p className="text-lg text-slate-600 mb-10 max-w-lg leading-relaxed">
-              Connect with top-rated, background-checked nannies and babysitters in your neighborhood. Simple, secure, and stress-free.
+
+            <p className="max-w-xl text-xl md:text-2xl text-[#86868b] font-medium leading-relaxed mb-10 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+              The modern way to find trusted childcare professionals. background-checked, interviewed, and ready to help.
             </p>
-            <div className="flex flex-wrap gap-4">
+
+            <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto animate-slide-up" style={{ animationDelay: '0.4s' }}>
               <button
                 onClick={() => navigate("/register-parent")}
-                className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all active:scale-95 btn-premium"
+                className="btn-primary"
               >
-                Hire a Nanny
+                Find a Nanny
               </button>
               <button
                 onClick={() => navigate("/register-nanny")}
-                className="px-8 py-4 bg-white text-slate-900 font-bold rounded-2xl border-2 border-slate-100 shadow-lg hover:border-slate-200 hover:-translate-y-1 transition-all active:scale-95 btn-premium"
+                className="btn-secondary"
               >
-                Become a Sitter
+                Join as a Professional
               </button>
             </div>
           </div>
 
-          <div className="relative animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
+          <div className="mt-20 relative animate-slide-up" style={{ animationDelay: '0.6s' }}>
+            <div className="relative z-10 overflow-hidden rounded-[2.5rem] shadow-2xl shadow-black/10 border border-white/50">
               <img
                 src={heroImage}
                 alt="Happy Nanny"
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-[2s] ease-out block"
               />
-              <div className="absolute bottom-6 left-6 right-6 p-6 glass-card rounded-2xl border border-white/30">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-400 rounded-full flex items-center justify-center text-white text-xl">✓</div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+
+              <div className="absolute bottom-8 left-8 right-8 md:w-auto md:right-auto">
+                <div className="glass-panel p-6 rounded-2xl flex items-center gap-4">
+                  <div className="w-12 h-12 bg-[#34C759] rounded-full flex items-center justify-center text-white text-xl shadow-lg">
+                    ✓
+                  </div>
                   <div>
-                    <p className="font-bold text-slate-900">100% Verified Care</p>
-                    <p className="text-sm text-slate-600">Background checks completed</p>
+                    <p className="font-semibold text-[#1D1D1F] text-lg">100% Verified</p>
+                    <p className="text-sm text-[#86868b]">Every pro passes a 7-point check</p>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Subtle background glow */}
+            <div className="absolute -top-20 -left-20 w-[600px] h-[600px] bg-blue-400/20 rounded-full blur-[120px] -z-10 mix-blend-multiply opacity-70 animate-float"></div>
+            <div className="absolute -bottom-20 -right-20 w-[600px] h-[600px] bg-purple-400/20 rounded-full blur-[120px] -z-10 mix-blend-multiply opacity-70 animate-float" style={{ animationDelay: '-3s' }}></div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-24 px-6 bg-white relative z-10">
-        <div className="container mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6">Why CareCircle?</h2>
-            <p className="text-slate-600 text-lg">We provide the most reliable and convenient platform for childcare services.</p>
+      {/* Value Props */}
+      <section className="py-24 px-6 bg-white">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-20">
+            <h2 className="text-3xl md:text-5xl font-semibold text-[#1D1D1F] mb-6">Why families trust CareCircle.</h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { title: "Safe & Secure", desc: "Rigorous background checks for every professional.", icon: "🛡️" },
-              { title: "Easy Booking", desc: "Find and book near you in just a few clicks.", icon: "📱" },
-              { title: "Reliable Care", desc: "Trusted by thousands of happy families.", icon: "❤️" },
-            ].map((f, i) => (
-              <div
-                key={i}
-                className="p-10 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-300 hover:-translate-y-2 animate-fade-in-up"
-                style={{ animationDelay: `${0.1 * (i + 1)}s` }}
-              >
-                <div className="text-4xl mb-6">{f.icon}</div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">{f.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{f.desc}</p>
+              { title: "Safety First", desc: "Rigorous background checks standard.", icon: "🛡️" },
+              { title: "Instant Booking", desc: "Find help in minutes, not days.", icon: "⚡" },
+              { title: "Top Rated", desc: "Only 5-star caregivers make the cut.", icon: "⭐️" },
+            ].map((feature, i) => (
+              <div key={i} className="group p-10 rounded-[2rem] bg-[#F5F5F7] hover:bg-white transition-all duration-300 border border-transparent hover:border-[#d2d2d7] hover:shadow-xl">
+                <div className="text-5xl mb-6 group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
+                <h3 className="text-2xl font-semibold text-[#1D1D1F] mb-3">{feature.title}</h3>
+                <p className="text-[#86868b] leading-relaxed text-lg">{feature.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA */}
       <section className="py-24 px-6">
-        <div className="container mx-auto max-w-5xl bg-indigo-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-indigo-300 animate-fade-in-up">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-          <div className="relative z-10">
-            <h2 className="text-3xl md:text-5xl font-extrabold mb-8">Ready to find the perfect care?</h2>
-            <p className="text-indigo-100 text-lg mb-12 max-w-2xl mx-auto">Join the CareCircle community today and experience the future of childcare services.</p>
-            <div className="flex flex-wrap justify-center gap-6">
+        <div className="container mx-auto max-w-5xl">
+          <div className="relative rounded-[3rem] overflow-hidden bg-[#1D1D1F] text-white px-8 py-20 text-center shadow-2xl">
+            <div className="relative z-10">
+              <h2 className="text-4xl md:text-6xl font-semibold mb-6 tracking-tight">Ready to get started?</h2>
+              <p className="text-xl text-[#86868b] mb-10 max-w-2xl mx-auto">Join thousands of parents and caregivers building a better community, together.</p>
               <button
                 onClick={() => navigate("/register-parent")}
-                className="px-10 py-5 bg-white text-indigo-600 font-bold rounded-2xl hover:bg-slate-50 transition-all active:scale-95 shadow-xl"
+                className="btn-primary bg-white text-black hover:bg-gray-100 hover:text-black border-none"
               >
-                Get Started Now
+                Create Free Account
               </button>
+            </div>
+            {/* Decorative circles */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+              <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[100px]"></div>
+              <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px]"></div>
             </div>
           </div>
         </div>
       </section>
+
     </div>
   );
 }
+

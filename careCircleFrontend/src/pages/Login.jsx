@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import PasswordInput from "../components/PasswordInput";
 import { login } from "../api/authApi";
 import { getParentProfile } from "../api/parentApi";
+import logo from "../assets/logo.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -29,9 +31,7 @@ export default function Login() {
       const data = await login(email, password, role);
       const token = data.accessToken;
 
-      if (!token) {
-        throw new Error("Token not received. Please contact support.");
-      }
+      if (!token) throw new Error("Token not received.");
 
       const decoded = jwtDecode(token);
       localStorage.setItem("token", token);
@@ -42,13 +42,8 @@ export default function Login() {
       if (tokenRole === "ROLE_PARENT") {
         try {
           const profile = await getParentProfile();
-          if (profile && profile.fullName) {
-            navigate("/parent-dashboard");
-          } else {
-            navigate("/parent-profile");
-          }
-        } catch (err) {
-          // If profile fetch fails (e.g., 404), assume profile is incomplete
+          navigate(profile && profile.fullName ? "/parent-dashboard" : "/parent-profile");
+        } catch {
           navigate("/parent-profile");
         }
       } else if (tokenRole === "ROLE_CARETAKER" || tokenRole === "ROLE_CAREGIVER") {
@@ -61,122 +56,104 @@ export default function Login() {
     } catch (error) {
       console.error("Login error:", error);
       const msg = error.message.toLowerCase();
-      if (msg.includes("invalid") || msg.includes("credentials") || msg.includes("unauthorized") || msg.includes("password") || msg.includes("auth")) {
-        setError("Invalid username or password");
-      } else {
-        setError("Invalid username or password"); // Forcing the requested message even for generic errors during login
-      }
+      setError(
+        msg.includes("invalid") || msg.includes("credentials") || msg.includes("auth")
+          ? "Invalid email or password."
+          : "Login failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-6 font-sans">
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-indigo-200/20 blur-[100px] rounded-full animate-float"></div>
-        <div className="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-pink-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-[#F5F5F7] p-6 relative overflow-hidden">
+      {/* Background Ambience */}
+      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-100/40 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-100/40 rounded-full blur-[120px] pointer-events-none"></div>
 
-      <div className="relative z-10 w-full max-w-[480px] animate-fade-in-up">
-        <div className="glass-card rounded-[2.5rem] p-10 md:p-12 border-white/50 shadow-2xl">
-          <div className="text-center mb-10">
-            <div className="w-20 h-20 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-xl shadow-indigo-100 rotate-3">C</div>
-            <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Welcome Back</h2>
-            <p className="text-slate-500 font-medium tracking-tight mb-8">Login to your account</p>
-
-            {/* Role Selector Tabs */}
-            <div className="flex p-1.5 bg-slate-100/80 rounded-2xl mb-8 backdrop-blur-sm">
-              <button
-                type="button"
-                onClick={() => setRole("ROLE_PARENT")}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${role === "ROLE_PARENT"
-                  ? "bg-white text-brand-parent shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
-                  }`}
-              >
-                👨‍👩‍👧 Parent
-              </button>
-              <button
-                type="button"
-                onClick={() => setRole("ROLE_CARETAKER")}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${role === "ROLE_CARETAKER"
-                  ? "bg-white text-brand-nanny shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
-                  }`}
-              >
-                👩‍⚕️ Caregiver
-              </button>
-            </div>
+      <div className="w-full max-w-[420px] relative z-10 animate-fade-in">
+        <div className="glass-panel p-8 md:p-10 rounded-[2rem] shadow-2xl shadow-indigo-500/5">
+          <div className="text-center mb-8">
+            <img src={logo} alt="CareCircle Logo" className="w-20 h-20 mx-auto mb-6 drop-shadow-md rounded-2xl" />
+            <h2 className="text-2xl font-semibold text-[#1D1D1F] tracking-tight">Welcome back</h2>
+            <p className="text-[#86868b] text-sm mt-2">Sign in to your account</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
+          {/* Role Toggle */}
+          <div className="flex p-1 bg-[#F5F5F7] rounded-xl mb-8">
+            <button
+              type="button"
+              onClick={() => setRole("ROLE_PARENT")}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${role === "ROLE_PARENT" ? "bg-white text-[#1D1D1F] shadow-sm" : "text-[#86868b] hover:text-[#1D1D1F]"
+                }`}
+            >
+              Parent
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("ROLE_CARETAKER")}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${role === "ROLE_CARETAKER" ? "bg-white text-[#1D1D1F] shadow-sm" : "text-[#86868b] hover:text-[#1D1D1F]"
+                }`}
+            >
+              Caregiver
+            </button>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div className="input-group-dynamic">
               <input
+                id="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder=" "
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50"
+                className="input-dynamic peer"
                 required
               />
+              <label htmlFor="email" className="label-dynamic">
+                Email Address
+              </label>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center ml-1">
-                <label className="text-sm font-bold text-slate-700">Password</label>
-                <button
-                  type="button"
-                  onClick={() => navigate("/forgot-password")}
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700"
-                >
-                  Forgot?
-                </button>
-              </div>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50"
-                required
-              />
+            <PasswordInput
+              id="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              showStrengthMeter={false}
+            />
+            <div className="flex justify-end mt-2">
+              <button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+                className="text-xs font-semibold text-[#86868b] hover:text-[#0071e3] transition-colors"
+              >
+                Forgot password?
+              </button>
             </div>
 
             {error && (
-              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                <span className="text-red-500 text-lg">⚠️</span>
-                <p className="text-sm font-bold text-red-600">{error}</p>
+              <div className="p-3 bg-red-50 text-red-600 text-sm font-medium rounded-xl text-center border border-red-100 animate-fade-in">
+                {error}
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-4 rounded-2xl font-extrabold text-white transition-all shadow-xl active:scale-95 btn-premium ${role === "ROLE_PARENT" ? "bg-brand-parent hover:bg-brand-parent-dark shadow-brand-parent/20" :
-                role === "ROLE_ADMIN" ? "bg-brand-admin hover:bg-brand-admin-dark shadow-brand-admin/20" :
-                  "bg-brand-nanny hover:bg-brand-nanny-dark shadow-brand-nanny/20"
-                }`}
+              className="btn-primary w-full justify-center flex items-center gap-2"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Processing...
-                </span>
-              ) : "Sign In"}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
-          <div className="mt-8 pt-8 border-t border-slate-100 text-center">
-            <p className="text-slate-500 text-sm font-medium">
-              Don't have an account?{" "}
+          <div className="mt-8 text-center">
+            <p className="text-[#86868b] text-sm">
+              New to CareCircle?{" "}
               <button
                 onClick={() => navigate(role === "ROLE_PARENT" ? "/register-parent" : "/register-nanny")}
-                className="font-bold text-indigo-600 hover:underline"
+                className="text-[#0071e3] font-medium hover:underline"
               >
                 Create Account
               </button>
@@ -187,3 +164,4 @@ export default function Login() {
     </div>
   );
 }
+
