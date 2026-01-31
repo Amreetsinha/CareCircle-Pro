@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { isValidPassword } from "../utils/passwordValidation";
+import logo from "../assets/logo.png";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -108,8 +109,7 @@ export default function Register() {
       <div className="relative z-10 w-full max-w-[540px] animate-fade-in-up">
         <div className="glass-card rounded-[2.5rem] p-10 md:p-12 border-white/50 shadow-2xl">
           <div className="text-center mb-10">
-            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-xl rotate-3 ${form.role === "parent" ? "bg-brand-parent shadow-brand-parent/20" : "bg-brand-nanny shadow-brand-nanny/20"
-              }`}>C</div>
+            <img src={logo} alt="CareCircle Logo" className="w-20 h-20 mx-auto mb-6 shadow-lg rounded-2xl rotate-3" />
             <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Join CareCircle</h2>
             <p className="text-slate-500 font-medium tracking-tight">Create your {form.role === "ROLE_PARENT" ? "parent" : "caregiver"} account</p>
           </div>
