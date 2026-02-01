@@ -41,36 +41,33 @@ public class AdminController {
     public AdminController(AdminService adminService) {
         this.adminService = adminService;
     }
-    
+
     @PostMapping("/profile")
-    public ResponseEntity<Void> createAdminProfile(
+    public ResponseEntity<AdminProfileResponse> createAdminProfile(
             @Valid @RequestBody CreateAdminProfileRequest request,
-            HttpServletRequest httpRequest
-    ) {
-    	UUID userId = validateAdminAndGetUserId(httpRequest);
-        adminService.createAdminProfile(
+            HttpServletRequest httpRequest) {
+        UUID userId = validateAdminAndGetUserId(httpRequest);
+        AdminProfileResponse response = adminService.createAdminProfile(
                 userId,
                 httpRequest.getHeader(USER_EMAIL_HEADER),
                 request.getFullName(),
                 request.getPhoneNumber(),
                 request.getAdminLevel(),
                 request.getAddress(),
-                request.getCity()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+                request.getCity());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/profile")
     public ResponseEntity<AdminProfileResponse> getMyProfile(HttpServletRequest httpRequest) {
-    	UUID userId = validateAdminAndGetUserId(httpRequest);
+        UUID userId = validateAdminAndGetUserId(httpRequest);
         return ResponseEntity.ok(adminService.getMyProfile(userId));
     }
 
     @PutMapping("/profile")
     public ResponseEntity<AdminProfileResponse> updateMyProfile(
             @Valid @RequestBody UpdateAdminProfileRequest request,
-            HttpServletRequest httpRequest
-    ) {
+            HttpServletRequest httpRequest) {
         UUID userId = validateAdminAndGetUserId(httpRequest);
         AdminProfileResponse response = adminService.updateMyProfile(
                 userId,
@@ -78,8 +75,7 @@ public class AdminController {
                 request.getPhoneNumber(),
                 request.getAdminLevel(),
                 request.getAddress(),
-                request.getCity()
-        );
+                request.getCity());
         return ResponseEntity.ok(response);
     }
 
@@ -105,8 +101,7 @@ public class AdminController {
             @RequestParam(required = false) String city,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpServletRequest httpRequest
-    ) {
+            HttpServletRequest httpRequest) {
         validateAdminAndGetUserId(httpRequest);
         return ResponseEntity.ok(adminService.getAllParents(city, page, size));
     }
@@ -114,8 +109,7 @@ public class AdminController {
     @GetMapping("/parents/{parentId}/children")
     public ResponseEntity<List<com.carecircle.user_profile_service.child.dto.ChildResponse>> getChildrenForParent(
             @PathVariable UUID parentId,
-            HttpServletRequest httpRequest
-    ) {
+            HttpServletRequest httpRequest) {
         validateAdminAndGetUserId(httpRequest);
         return ResponseEntity.ok(adminService.getChildrenForParent(parentId));
     }
@@ -125,12 +119,10 @@ public class AdminController {
             @RequestParam(required = false) String city,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpServletRequest httpRequest
-    ) {
+            HttpServletRequest httpRequest) {
         validateAdminAndGetUserId(httpRequest);
         return ResponseEntity.ok(adminService.getAllCaregivers(city, page, size));
     }
-
 
     // Caregiver Profile
 
@@ -138,9 +130,8 @@ public class AdminController {
     public ResponseEntity<Void> verifyCaregiverProfile(
             @PathVariable UUID caregiverId,
             @Valid @RequestBody VerifyRequest request,
-            HttpServletRequest httpRequest
-    ) {
-    	UUID userId = validateAdminAndGetUserId(httpRequest);
+            HttpServletRequest httpRequest) {
+        UUID userId = validateAdminAndGetUserId(httpRequest);
         adminService.verifyCaregiverProfile(userId, caregiverId, request.getReason());
         return ResponseEntity.ok().build();
     }
@@ -149,9 +140,8 @@ public class AdminController {
     public ResponseEntity<Void> rejectCaregiverProfile(
             @PathVariable UUID caregiverId,
             @Valid @RequestBody RejectRequest request,
-            HttpServletRequest httpRequest
-    ) {
-    	UUID userId = validateAdminAndGetUserId(httpRequest);
+            HttpServletRequest httpRequest) {
+        UUID userId = validateAdminAndGetUserId(httpRequest);
         adminService.rejectCaregiverProfile(userId, caregiverId, request.getReason());
         return ResponseEntity.ok().build();
     }
@@ -160,15 +150,15 @@ public class AdminController {
     public ResponseEntity<Void> disableCaregiverProfile(
             @PathVariable UUID caregiverId,
             @Valid @RequestBody DisableRequest request,
-            HttpServletRequest httpRequest
-    ) {
-    	UUID userId = validateAdminAndGetUserId(httpRequest);
+            HttpServletRequest httpRequest) {
+        UUID userId = validateAdminAndGetUserId(httpRequest);
         adminService.disableCaregiverProfile(userId, caregiverId, request.getReason());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/audits/profiles")
-    public ResponseEntity<List<com.carecircle.user_profile_service.admin.dto.ProfileVerificationAuditResponse>> getProfileAudits(HttpServletRequest httpRequest) {
+    public ResponseEntity<List<com.carecircle.user_profile_service.admin.dto.ProfileVerificationAuditResponse>> getProfileAudits(
+            HttpServletRequest httpRequest) {
         validateAdminAndGetUserId(httpRequest);
         return ResponseEntity.ok(adminService.getProfileAudits());
     }
@@ -187,6 +177,6 @@ public class AdminController {
         if (userId == null || userId.isBlank()) {
             throw new RuntimeException("Missing X-User-ID header");
         }
-        return UUID.fromString(userId); //Returns the uuid from the string obtained
+        return UUID.fromString(userId); // Returns the uuid from the string obtained
     }
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createParentProfile, getParentProfile } from "../api/parentApi";
+import { createParentProfile, getParentProfile, updateParentProfile } from "../api/parentApi";
+import { getActiveCities } from "../api/cityApi";
 
 export default function ParentProfile() {
   const navigate = useNavigate();
@@ -11,14 +12,22 @@ export default function ParentProfile() {
     city: "",
   });
 
+  const [cities, setCities] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch supported cities
+        const citiesData = await getActiveCities();
+        setCities(citiesData || []);
+
+        // Fetch profile
         const data = await getParentProfile();
-        if (data) {
+        if (data && data.fullName) {
+          setIsEditing(true);
           setFormData({
             fullName: data.fullName || "",
             phoneNumber: data.phoneNumber || "",
@@ -27,10 +36,10 @@ export default function ParentProfile() {
           });
         }
       } catch (error) {
-        console.log("No profile found or fetch error:", error);
+        console.log("Fetch error (likely new profile):", error);
       }
     };
-    fetchProfile();
+    fetchData();
   }, []);
 
   const handleChange = (e) => {
@@ -43,11 +52,18 @@ export default function ParentProfile() {
     setMessage("");
 
     try {
-      await createParentProfile(formData);
-      setMessage("✅ Profile saved successfully! Redirecting to dashboard...");
+      if (isEditing) {
+        await updateParentProfile(formData);
+        setMessage("✅ Profile updated successfully!");
+      } else {
+        await createParentProfile(formData);
+        setMessage("✅ Profile created successfully!");
+      }
+
       setTimeout(() => {
         navigate("/parent-dashboard");
       }, 1500);
+
     } catch (error) {
       console.error("Profile Save Error:", error);
       setMessage("❌ " + (error.message || "Failed to save profile"));
@@ -56,84 +72,107 @@ export default function ParentProfile() {
     }
   };
 
-  const handleSkip = () => {
-    navigate("/parent-dashboard");
-  };
-
   return (
-    <div className="min-h-screen pt-28 bg-gray-50 flex items-center justify-center p-8 font-sans">
-      <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-[600px] border border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Parent Profile</h2>
-        {message && <p className={`mb-6 text-center font-semibold ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}>{message}</p>}
+    <div className="min-h-screen pt-28 flex items-center justify-center p-6 font-sans">
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[10%] right-[10%] w-[30%] h-[35%] bg-indigo-200/20 blur-[100px] rounded-full animate-float"></div>
+        <div className="absolute bottom-[10%] left-[10%] w-[30%] h-[35%] bg-pink-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-600 ml-1">Full Name</label>
-            <input
-              type="text"
-              name="fullName"
-              placeholder="e.g. John Doe"
-              value={formData.fullName}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-400/10 transition-all placeholder-gray-300"
-            />
+      <div className="relative z-10 w-full max-w-[600px] animate-fade-in-up">
+        <div className="card-apple p-10 md:p-12 shadow-2xl">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-extrabold text-slate-900 mb-2">
+              {isEditing ? "Edit Profile" : "Build Your Profile"}
+            </h2>
+            <p className="text-slate-500 font-medium tracking-tight">
+              {isEditing ? "Update your personal details" : "Tell us a bit about yourself"}
+            </p>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-600 ml-1">Phone Number</label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              placeholder="e.g. +91 9876543210"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-400/10 transition-all placeholder-gray-300"
-            />
-          </div>
+          {message && (
+            <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${message.includes("✅") ? "bg-green-50 border border-green-100 text-green-600" : "bg-red-50 border border-red-100 text-red-600"}`}>
+              <span className="text-lg">{message.includes("✅") ? "✅" : "⚠️"}</span>
+              <p className="text-sm font-bold">{message}</p>
+            </div>
+          )}
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-600 ml-1">Address</label>
-            <textarea
-              name="address"
-              placeholder="Your full address..."
-              value={formData.address}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-400/10 transition-all placeholder-gray-300 min-h-[100px] resize-y"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-700 ml-1">Full Name</label>
+              <input
+                type="text"
+                name="fullName"
+                placeholder="e.g. John Doe"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
+                className="input-apple"
+              />
+            </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-600 ml-1">City</label>
-            <input
-              type="text"
-              name="city"
-              placeholder="e.g. New York"
-              value={formData.city}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-400/10 transition-all placeholder-gray-300"
-            />
-          </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-700 ml-1">Phone Number</label>
+              <input
+                type="tel"
+                name="phoneNumber"
+                placeholder="e.g. +91 9876543210"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                required
+                className="input-apple"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full p-3.5 bg-red-500 text-white font-bold rounded-xl shadow-md hover:bg-red-600 hover:-translate-y-0.5 transition-all active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed mt-2"
-          >
-            {loading ? "Saving..." : "Save Profile"}
-          </button>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-700 ml-1">Address</label>
+              <textarea
+                name="address"
+                placeholder="Your full address..."
+                value={formData.address}
+                onChange={handleChange}
+                required
+                className="input-apple min-h-[100px] resize-y"
+              />
+            </div>
 
-          <button
-            type="button"
-            onClick={handleSkip}
-            className="w-full p-3.5 bg-gray-100 text-gray-600 font-semibold rounded-xl hover:bg-gray-200 transition-all mt-1"
-          >
-            Skip for now
-          </button>
-        </form>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-700 ml-1">City</label>
+              <select
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                required
+                className="input-apple appearance-none bg-white/60"
+              >
+                <option value="" disabled>Select your city</option>
+                {cities.map((city) => (
+                  <option key={city.id} value={city.name}>
+                    {city.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="pt-4 flex flex-col gap-3">
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-apple-primary w-full py-3.5 text-lg font-bold shadow-lg"
+              >
+                {loading ? "Saving..." : (isEditing ? "Update Profile" : "Save Profile")}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate("/parent-dashboard")}
+                className="w-full py-3 text-slate-400 hover:text-slate-600 font-bold transition-colors text-sm"
+              >
+                {isEditing ? "Cancel" : "Skip for now"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

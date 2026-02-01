@@ -14,9 +14,6 @@ public class UpdateCaregiverProfileRequest {
     @NotBlank(message = "Phone number is required")
     private String phoneNumber;
 
-    @NotBlank(message = "Address line 1 is required")
-    private String addressLine1;
-
     @NotBlank(message = "Address is required")
     private String address;
 
@@ -24,9 +21,11 @@ public class UpdateCaregiverProfileRequest {
     private String city;
 
     private String bio;
+
     private Integer experienceYears;
 
-    public UpdateCaregiverProfileRequest() {}
+    public UpdateCaregiverProfileRequest() {
+    }
 
     public String getFullName() {
         return fullName;
@@ -52,10 +51,27 @@ public class UpdateCaregiverProfileRequest {
         return experienceYears;
     }
 
-    public void setFullName(String fullName) { this.fullName = fullName; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-    public void setAddress(String address) { this.address = address; }
-    public void setCity(String city) { this.city = city; }
-    public void setBio(String bio) { this.bio = bio; }
-    public void setExperienceYears(Integer experienceYears) { this.experienceYears = experienceYears; }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void setExperienceYears(Integer experienceYears) {
+        this.experienceYears = experienceYears;
+    }
 }

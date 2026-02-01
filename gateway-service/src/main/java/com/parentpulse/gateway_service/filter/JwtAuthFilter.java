@@ -127,8 +127,7 @@ public class JwtAuthFilter implements GlobalFilter {
             "/matching-booking-service",
             "/user-profile-service",
             "/auth-service",
-            "/communication-service"
-    );
+            "/communication-service");
 
     public JwtAuthFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
@@ -140,10 +139,9 @@ public class JwtAuthFilter implements GlobalFilter {
         String path = exchange.getRequest().getURI().getPath();
 
         // ===== PUBLIC ENDPOINTS =====
-        if (
-                path.startsWith("/auth/") ||
-                path.startsWith("/actuator/")
-        ) {
+        if (path.startsWith("/auth/") ||
+                path.startsWith("/actuator/") ||
+                path.startsWith("/cities")) {
             return chain.filter(exchange);
         }
 
@@ -190,8 +188,7 @@ public class JwtAuthFilter implements GlobalFilter {
                         .header("X-User-Email", claims.getSubject())
                         .header("X-User-Role", role)
                         .header("X-User-Id", userId)
-                        .header("X-Request-Source", "GATEWAY")
-                )
+                        .header("X-Request-Source", "GATEWAY"))
                 .build();
 
         return chain.filter(exchange);
@@ -211,8 +208,8 @@ public class JwtAuthFilter implements GlobalFilter {
     private boolean isAuthorized(String path, String role) {
         // Relaxed Authorization:
         // We defer role-based access control to the downstream services.
-        // The Gateway's job is simply to validate the JWT and forward user identity headers.
+        // The Gateway's job is simply to validate the JWT and forward user identity
+        // headers.
         return true;
     }
 }
-

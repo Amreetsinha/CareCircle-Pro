@@ -1,146 +1,88 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 export default function Navbar() {
+  const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
-  const [userRole, setUserRole] = useState(localStorage.getItem("role"));
-  const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail") || "");
+  const location = useLocation(); // Force re-render on route change
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
   useEffect(() => {
-    // Sync auth state whenever the location changes (e.g., after login/logout)
-    setIsLoggedIn(!!localStorage.getItem("token"));
-    setUserRole(localStorage.getItem("role"));
-    setUserEmail(localStorage.getItem("userEmail") || "");
-  }, [location]);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("userEmail");
-    localStorage.removeItem("adminProfileCreated");
-    setIsLoggedIn(false);
-    setUserRole(null);
     navigate("/");
   };
 
-  const toggleDropdown = (name) => {
-    setActiveDropdown(activeDropdown === name ? null : name);
-  };
-
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[1000] transition-all duration-300 px-6 py-4">
-      <div className="max-w-7xl mx-auto glass-card rounded-[2rem] px-8 py-3.5 flex justify-between items-center font-sans border-white/40">
-        <div
-          className="text-2xl font-black tracking-tighter text-slate-900 cursor-pointer select-none group flex items-center gap-2"
-          onClick={() => navigate("/")}
-        >
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-lg rotate-3 group-hover:rotate-0 transition-transform">C</div>
-          CareCircle
-        </div>
+    <nav
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled
+        ? "bg-white/90 backdrop-blur-md border-b border-[#d2d2d7]"
+        : "bg-white/80 backdrop-blur-md border-b border-transparent"
+        }`}
+    >
+      <div className="max-w-[980px] mx-auto px-6 h-[64px] flex justify-between items-center text-xs">
+        {/* Logo / Brand */}
+        <Link to="/" className="flex items-center text-[#1d1d1f] hover:opacity-70 transition-opacity">
+          <img src={logo} alt="CareCircle" className="h-4 w-4 mr-2" />
+          <span className="font-semibold text-[17px] tracking-tight">CareCircle</span>
+        </Link>
 
-        <div className="flex gap-4 items-center ml-auto">
-          {!isLoggedIn ? (
-            <>
-              {/* Log in Dropdown */}
-              <div
-                className="relative group"
-                onMouseEnter={() => setActiveDropdown("login")}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <button
-                  onClick={() => toggleDropdown("login")}
-                  className="flex items-center gap-2 py-2.5 px-6 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer outline-none"
-                >
-                  Log in <span className={`text-[10px] opacity-50 transition-transform duration-300 ${activeDropdown === "login" ? "rotate-180" : ""}`}>▼</span>
-                </button>
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center space-x-8 text-[#1d1d1f] text-[16px] font-medium tracking-wide">
+          <Link to="/" className="hover:text-[#0071e3] transition-colors">Home</Link>
+          <Link to="/find-nanny" className="hover:text-[#0071e3] transition-colors">Find Care</Link>
+          <Link to="/register" state={{ role: "ROLE_CARETAKER" }} className="hover:text-[#0071e3] transition-colors">Become a Caregiver</Link>
 
-                <div className={`absolute top-full right-0 pt-2 w-full min-w-[200px] transition-all duration-300 z-[1001] ${activeDropdown === "login" ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2 pointer-events-none"}`}>
-                  <div className="bg-white/95 backdrop-blur-xl shadow-2xl rounded-2xl py-3 border border-slate-100 shadow-indigo-100/50">
-                    <button
-                      className="w-full text-left py-3 px-6 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                      onClick={() => { navigate("/login", { state: { role: "ROLE_PARENT" } }); setActiveDropdown(null); }}
-                    >
-                      👨‍👩‍👧 Parent Portal
-                    </button>
-                    <button
-                      className="w-full text-left py-3 px-6 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                      onClick={() => { navigate("/login", { state: { role: "ROLE_CARETAKER" } }); setActiveDropdown(null); }}
-                    >
-                      👩‍⚕️ Caregiver Hub
-                    </button>
-                    <div className="h-px bg-slate-100 my-2 mx-4"></div>
-                    <button
-                      className="w-full text-left py-3 px-6 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                      onClick={() => { navigate("/admin-login"); setActiveDropdown(null); }}
-                    >
-                      🛡️ Administrator
-                    </button>
-                  </div>
+          {token ? (
+            <div className="relative group cursor-pointer hover:text-[#0071e3] transition-colors">
+              <span>Account</span>
+              <div className="absolute right-0 top-full pt-2 hidden group-hover:block">
+                <div className="bg-white rounded-lg shadow-apple-card border border-[#d2d2d7] py-2 w-48 flex flex-col items-start overflow-hidden">
+                  <Link
+                    to={
+                      role === "ROLE_PARENT" ? "/parent-dashboard" :
+                        (role === "ROLE_CARETAKER" || role === "ROLE_CAREGIVER") ? "/caregiver-dashboard" :
+                          role === "ROLE_ADMIN" ? "/admin-dashboard" : "/"
+                    }
+                    className="w-full px-4 py-2 hover:bg-[#f5f5f7] text-left"
+                  >
+                    Dashboard
+                  </Link>
+                  <button onClick={handleLogout} className="w-full px-4 py-2 hover:bg-[#f5f5f7] text-left text-red-500">Log Out</button>
                 </div>
               </div>
-
-              {/* Sign up Dropdown */}
-              <div
-                className="relative group"
-                onMouseEnter={() => setActiveDropdown("signup")}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <button
-                  onClick={() => toggleDropdown("signup")}
-                  className="flex items-center gap-2 py-3 px-8 rounded-full bg-slate-900 text-white text-sm font-bold hover:bg-indigo-600 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-200 transition-all active:scale-95 cursor-pointer outline-none"
-                >
-                  Get Started <span className={`text-[10px] opacity-50 transition-transform duration-300 ml-1 ${activeDropdown === "signup" ? "rotate-180" : ""}`}>▼</span>
-                </button>
-
-                <div className={`absolute top-full right-0 pt-2 w-full min-w-[220px] transition-all duration-300 z-[1001] ${activeDropdown === "signup" ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2 pointer-events-none"}`}>
-                  <div className="bg-white/95 backdrop-blur-xl shadow-2xl rounded-2xl py-3 border border-slate-100 shadow-indigo-100/50">
-                    <button
-                      className="w-full text-left py-4 px-6 group/item"
-                      onClick={() => { navigate("/register-parent"); setActiveDropdown(null); }}
-                    >
-                      <div className="font-bold text-slate-900 group-hover/item:text-indigo-600 transition-colors">I'm a Parent</div>
-                      <div className="text-[11px] text-slate-500">I need childcare services</div>
-                    </button>
-                    <button
-                      className="w-full text-left py-4 px-6 group/item"
-                      onClick={() => { navigate("/register-nanny"); setActiveDropdown(null); }}
-                    >
-                      <div className="font-bold text-slate-900 group-hover/item:text-indigo-600 transition-colors">I'm a Nanny</div>
-                      <div className="text-[11px] text-slate-500">I want to provide care</div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </>
+            </div>
           ) : (
-            <>
-              {userEmail && (
-                <span className="hidden md:inline-block text-xs font-semibold text-slate-500 bg-slate-100/50 px-3 py-1.5 rounded-full border border-slate-200/50">
-                  {userEmail}
-                </span>
-              )}
-              <button
-                onClick={() => {
-                  if (userRole === "ROLE_PARENT") navigate("/parent-dashboard");
-                  else if (userRole === "ROLE_CARETAKER") navigate("/nanny-profile");
-                  else if (userRole === "ROLE_ADMIN") navigate("/admin-dashboard");
-                }}
-                className="py-2.5 px-6 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer outline-none"
+            <div className="flex items-center gap-4">
+              <Link to="/login" className="hover:text-[#0071e3] transition-colors">Sign in</Link>
+              <Link
+                to="/register"
+                state={{ role: "ROLE_PARENT" }}
+                className="bg-[#0071e3] text-white px-3 py-1 rounded-full hover:bg-[#0077ed] transition-colors opacity-100 font-medium"
               >
-                Dashboard
-              </button>
-              <button
-                onClick={handleLogout}
-                className="py-2.5 px-6 rounded-full bg-red-50 text-red-600 text-sm font-bold hover:bg-red-100 transition-all active:scale-95 cursor-pointer outline-none"
-              >
-                Logout
-              </button>
-            </>
+                Sign Up
+              </Link>
+            </div>
           )}
         </div>
+
+        {/* Mobile Menu Icon */}
+        <button className="md:hidden text-[#1d1d1f]" aria-label="Menu">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
       </div>
     </nav>
   );

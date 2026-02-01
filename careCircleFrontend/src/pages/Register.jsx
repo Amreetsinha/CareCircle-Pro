@@ -1,19 +1,29 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { isValidPassword } from "../utils/passwordValidation";
+import PasswordInput from "../components/PasswordInput";
+import logo from "../assets/logo.png";
 
 export default function Register() {
   const navigate = useNavigate();
 
+  const location = useLocation();
   const [form, setForm] = useState({
-    role: "ROLE_PARENT",
-    name: "",
+    role: location.state?.role || "ROLE_PARENT",
     email: "",
-    password: "",
-    confirmPassword: "",
-    phone: "",
-    city: ""
+    password: ""
   });
+
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   const role = localStorage.getItem("role");
+  //   if (token) {
+  //     if (role === "ROLE_PARENT") navigate("/parent-dashboard");
+  //     else if (role === "ROLE_CARETAKER") navigate("/nanny-profile");
+  //     else if (role === "ROLE_ADMIN") navigate("/admin-dashboard");
+  //     else navigate("/");
+  //   }
+  // }, [navigate]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,7 +31,8 @@ export default function Register() {
 
   const roles = [
     { value: "ROLE_PARENT", label: "👨‍👩‍👧 Parent", description: "Looking for childcare services" },
-    { value: "ROLE_CARETAKER", label: "👩‍⚕️ Nanny/Caregiver", description: "Offering childcare services" }
+    { value: "ROLE_CARETAKER", label: "👩‍⚕️ Nanny/Caregiver", description: "Offering childcare services" },
+    { value: "ROLE_ADMIN", label: "🛡️ Admin", description: "Platform administrator" }
   ];
 
   const handleChange = (e) => {
@@ -41,11 +52,6 @@ export default function Register() {
       return;
     }
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match!");
-      return;
-    }
-
     try {
       setLoading(true);
       const response = await fetch("/auth/register", {
@@ -53,11 +59,8 @@ export default function Register() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           role: form.role,
-          name: form.name,
           email: form.email,
-          password: form.password,
-          phone: form.phone,
-          city: form.city
+          password: form.password
         })
       });
 
@@ -84,7 +87,12 @@ export default function Register() {
 
       setSuccess(true);
       setTimeout(() => {
-        navigate(form.role === "ROLE_PARENT" ? "/parent-profile" : "/nanny-profile");
+        navigate("/verify-account", {
+          state: {
+            email: form.email,
+            role: form.role
+          }
+        });
       }, 1500);
 
     } catch (error) {
@@ -104,17 +112,16 @@ export default function Register() {
   const selectedRole = roles.find(r => r.value === form.role);
 
   return (
-    <div className="min-h-screen pt-28 flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-6 font-sans">
+    <div className="min-h-screen pt-28 flex items-center justify-center p-6 font-sans">
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[10%] right-[10%] w-[30%] h-[35%] bg-indigo-200/20 blur-[100px] rounded-full animate-float"></div>
         <div className="absolute bottom-[10%] left-[10%] w-[30%] h-[35%] bg-pink-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
       </div>
 
       <div className="relative z-10 w-full max-w-[540px] animate-fade-in-up">
-        <div className="glass-card rounded-[2.5rem] p-10 md:p-12 border-white/50 shadow-2xl">
+        <div className="card-apple p-10 md:p-12 shadow-2xl">
           <div className="text-center mb-10">
-            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-xl rotate-3 ${form.role === "parent" ? "bg-brand-parent shadow-brand-parent/20" : "bg-brand-nanny shadow-brand-nanny/20"
-              }`}>C</div>
+            <img src={logo} alt="CareCircle Logo" className="w-20 h-20 mx-auto mb-6 shadow-lg rounded-2xl rotate-3" />
             <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Join CareCircle</h2>
             <p className="text-slate-500 font-medium tracking-tight">Create your {form.role === "ROLE_PARENT" ? "parent" : "caregiver"} account</p>
           </div>
@@ -122,47 +129,47 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-bold text-slate-700 ml-1 mb-2">Who are you?</label>
-              <select
-                name="role"
-                value={form.role}
-                onChange={handleChange}
-                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50 appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[right_10px_center] bg-[length:16px] pr-10"
-              >
-                {roles.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-              </select>
+              <div className="flex justify-center p-1 bg-slate-100 rounded-xl mb-4">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, role: "ROLE_PARENT" })}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${form.role === "ROLE_PARENT" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600"}`}
+                >
+                  Parent
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, role: "ROLE_CARETAKER" })}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${form.role === "ROLE_CARETAKER" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600"}`}
+                >
+                  Caregiver
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, role: "ROLE_ADMIN" })}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${form.role === "ROLE_ADMIN" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600"}`}
+                >
+                  Admin
+                </button>
+              </div>
               {selectedRole && <p className="mt-2 text-[11px] text-slate-500 italic px-3 py-1.5 bg-slate-50 rounded-lg border-l-2 border-indigo-500">{selectedRole.description}</p>}
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-slate-700 ml-1">Full Name</label>
-              <input name="name" value={form.name} onChange={handleChange} placeholder="Enter your full name" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="block text-sm font-bold text-slate-700 ml-1">Email</label>
-                <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="name@example.com" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-bold text-slate-700 ml-1">Phone</label>
-                <input name="phone" value={form.phone} onChange={handleChange} placeholder="+91 00000 00000" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="block text-sm font-bold text-slate-700 ml-1">Password</label>
-                <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="••••••••" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-bold text-slate-700 ml-1">Confirm</label>
-                <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="••••••••" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
-              </div>
+              <label className="block text-sm font-bold text-slate-700 ml-1">Email</label>
+              <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="name@example.com" required className="input-apple" />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-slate-700 ml-1">City</label>
-              <input name="city" value={form.city} onChange={handleChange} placeholder="Enter your city" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
+              <label className="block text-sm font-bold text-slate-700 ml-1">Password</label>
+              <PasswordInput
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                showStrengthMeter={true}
+                className="input-apple"
+              />
             </div>
 
             {error && (
@@ -182,10 +189,9 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-4 rounded-2xl font-extrabold text-white transition-all shadow-xl active:scale-95 btn-premium mt-4 ${form.role === "ROLE_PARENT" ? "bg-brand-parent hover:bg-brand-parent-dark shadow-brand-parent/20" : "bg-brand-nanny hover:bg-brand-nanny-dark shadow-brand-nanny/20"
-                }`}
+              className={`w-full py-4 rounded-2xl font-extrabold text-white transition-all shadow-xl active:scale-95 mt-4 bg-[#0071e3] hover:bg-[#0077ed]`}
             >
-              {loading ? "Processing..." : "Create Account"}
+              {loading ? "Processing..." : "Register"}
             </button>
           </form>
 

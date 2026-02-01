@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 // Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import RegisterParent from "./pages/RegisterParent";
 import RegisterNanny from "./pages/RegisterNanny";
 import RegisterAdmin from "./pages/RegisterAdmin";
@@ -22,6 +23,7 @@ import AdminProfile from "./pages/AdminProfile";
 
 // New Nanny pages
 import NannyProfile from "./pages/NannyProfile";
+import CaregiverDashboard from "./pages/CaregiverDashboard";
 // import NannyQualification from "./pages/NannyQualification";
 // import NannyCertification from "./pages/NannyCertification";
 
@@ -41,6 +43,7 @@ export default function App() {
         <Route path="/verify-account" element={<VerifyAccount />} />
 
         {/* Registration */}
+        <Route path="/register" element={<Register />} />
         <Route path="/register-parent" element={<RegisterParent />} />
         <Route path="/register-nanny" element={<RegisterNanny />} />
         <Route path="/register-admin" element={<RegisterAdmin />} />
@@ -56,6 +59,7 @@ export default function App() {
         <Route path="/admin-profile" element={<AdminProfile />} />
 
         {/* Nanny onboarding flow */}
+        <Route path="/caregiver-dashboard" element={<CaregiverDashboard />} />
         <Route path="/nanny-profile" element={<NannyProfile />} />
         {/* <Route path="/nanny-qualification" element={<NannyQualification />} />
         <Route path="/nanny-certification" element={<NannyCertification />} /> */}

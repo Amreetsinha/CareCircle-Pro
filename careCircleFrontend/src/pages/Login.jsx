@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import PasswordInput from "../components/PasswordInput";
 import { login } from "../api/authApi";
 import { getParentProfile } from "../api/parentApi";
+import { getAdminProfile } from "../api/adminApi";
+import { getCaregiverProfile } from "../api/caregiverApi";
+import logo from "../assets/logo.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -15,10 +19,24 @@ export default function Login() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Redirect if already logged in
+    const token = localStorage.getItem("token");
+    const savedRole = localStorage.getItem("role");
+    if (token) {
+      if (savedRole === "ROLE_PARENT") navigate("/parent-dashboard");
+      else if (savedRole === "ROLE_CARETAKER" || savedRole === "ROLE_CAREGIVER") navigate("/caregiver-dashboard");
+      else if (savedRole === "ROLE_ADMIN") navigate("/admin-dashboard");
+      else navigate("/");
+      return;
+    }
+
     if (location.state?.role) {
       setRole(location.state.role);
     }
-  }, [location.state]);
+    if (location.state?.email) {
+      setEmail(location.state.email);
+    }
+  }, [location.state, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,10 +46,7 @@ export default function Login() {
     try {
       const data = await login(email, password, role);
       const token = data.accessToken;
-
-      if (!token) {
-        throw new Error("Token not received. Please contact support.");
-      }
+      if (!token) throw new Error("Token not received.");
 
       const decoded = jwtDecode(token);
       localStorage.setItem("token", token);
@@ -42,148 +57,149 @@ export default function Login() {
       if (tokenRole === "ROLE_PARENT") {
         try {
           const profile = await getParentProfile();
-          if (profile && profile.fullName) {
-            navigate("/parent-dashboard");
-          } else {
-            navigate("/parent-profile");
-          }
-        } catch (err) {
-          // If profile fetch fails (e.g., 404), assume profile is incomplete
+          navigate(profile && profile.fullName ? "/parent-dashboard" : "/parent-profile");
+        } catch {
           navigate("/parent-profile");
         }
       } else if (tokenRole === "ROLE_CARETAKER" || tokenRole === "ROLE_CAREGIVER") {
-        navigate("/nanny-profile");
+        try {
+          const profile = await getCaregiverProfile();
+          // If profile exists and has a name, go to dashboard
+          navigate(profile && profile.fullName ? "/caregiver-dashboard" : "/nanny-profile");
+        } catch {
+          navigate("/nanny-profile");
+        }
       } else if (tokenRole === "ROLE_ADMIN") {
-        navigate("/admin-dashboard");
+        try {
+          const profile = await getAdminProfile();
+          navigate(profile && profile.fullName ? "/admin-dashboard" : "/admin-profile");
+        } catch {
+          navigate("/admin-profile");
+        }
       } else {
         navigate("/");
       }
     } catch (error) {
       console.error("Login error:", error);
       const msg = error.message.toLowerCase();
-      if (msg.includes("invalid") || msg.includes("credentials") || msg.includes("unauthorized") || msg.includes("password") || msg.includes("auth")) {
-        setError("Invalid username or password");
-      } else {
-        setError("Invalid username or password"); // Forcing the requested message even for generic errors during login
-      }
+      setError(
+        msg.includes("invalid") || msg.includes("credentials") || msg.includes("auth")
+          ? "Invalid email or password."
+          : "Login failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-6 font-sans">
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-indigo-200/20 blur-[100px] rounded-full animate-float"></div>
-        <div className="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-pink-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
+    <div className="min-h-screen flex flex-col items-center pt-32 px-6">
+
+      {/* Apple ID Style Header */}
+      <div className="mb-10 text-center">
+        <img src={logo} alt="Logo" className="h-12 w-12 mx-auto mb-4 opacity-80" />
+        <h1 className="text-[28px] font-semibold text-[#1d1d1f]">Sign in to CareCircle</h1>
       </div>
 
-      <div className="relative z-10 w-full max-w-[480px] animate-fade-in-up">
-        <div className="glass-card rounded-[2.5rem] p-10 md:p-12 border-white/50 shadow-2xl">
-          <div className="text-center mb-10">
-            <div className="w-20 h-20 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-xl shadow-indigo-100 rotate-3">C</div>
-            <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Welcome Back</h2>
-            <p className="text-slate-500 font-medium tracking-tight mb-8">Login to your account</p>
+      <div className="w-full max-w-[440px] bg-white rounded-2xl p-10 shadow-sm border border-[#d2d2d7]">
+        <form onSubmit={handleLogin} className="space-y-6">
 
-            {/* Role Selector Tabs */}
-            <div className="flex p-1.5 bg-slate-100/80 rounded-2xl mb-8 backdrop-blur-sm">
-              <button
-                type="button"
-                onClick={() => setRole("ROLE_PARENT")}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${role === "ROLE_PARENT"
-                  ? "bg-white text-brand-parent shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
-                  }`}
-              >
-                👨‍👩‍👧 Parent
-              </button>
-              <button
-                type="button"
-                onClick={() => setRole("ROLE_CARETAKER")}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${role === "ROLE_CARETAKER"
-                  ? "bg-white text-brand-nanny shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
-                  }`}
-              >
-                👩‍⚕️ Caregiver
-              </button>
+          {/* Role Toggle */}
+          <div className="flex justify-center p-1 bg-[#f5f5f7] rounded-lg mb-4">
+            <button
+              type="button"
+              onClick={() => setRole("ROLE_PARENT")}
+              className={`flex-1 py-1.5 rounded-md text-[13px] font-medium transition-all ${role === "ROLE_PARENT" ? "bg-white shadow-sm text-[#1d1d1f]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
+            >
+              Parent
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("ROLE_CARETAKER")}
+              className={`flex-1 py-1.5 rounded-md text-[13px] font-medium transition-all ${role === "ROLE_CARETAKER" ? "bg-white shadow-sm text-[#1d1d1f]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
+            >
+              Caregiver
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("ROLE_ADMIN")}
+              className={`flex-1 py-1.5 rounded-md text-[13px] font-medium transition-all ${role === "ROLE_ADMIN" ? "bg-white shadow-sm text-[#1d1d1f]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
+            >
+              Admin
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-apple"
+                placeholder="Email or Phone Number"
+                required
+              />
+            </div>
+            <div>
+              <PasswordInput
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                showStrengthMeter={false}
+                className="border border-[#d2d2d7] rounded-lg overflow-hidden focus-within:ring-4 focus-within:ring-[#0071e3]/20 focus-within:border-[#0071e3]"
+              />
             </div>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
-              <input
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50"
-                required
-              />
+          {error && (
+            <div className="text-[#ff3b30] text-sm text-center">
+              {error}
             </div>
+          )}
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center ml-1">
-                <label className="text-sm font-bold text-slate-700">Password</label>
-                <button
-                  type="button"
-                  onClick={() => navigate("/forgot-password")}
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700"
-                >
-                  Forgot?
-                </button>
-              </div>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50"
-                required
-              />
-            </div>
-
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                <span className="text-red-500 text-lg">⚠️</span>
-                <p className="text-sm font-bold text-red-600">{error}</p>
-              </div>
-            )}
-
+          <div className="flex flex-col gap-4 mt-8">
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-4 rounded-2xl font-extrabold text-white transition-all shadow-xl active:scale-95 btn-premium ${role === "ROLE_PARENT" ? "bg-brand-parent hover:bg-brand-parent-dark shadow-brand-parent/20" :
-                role === "ROLE_ADMIN" ? "bg-brand-admin hover:bg-brand-admin-dark shadow-brand-admin/20" :
-                  "bg-brand-nanny hover:bg-brand-nanny-dark shadow-brand-nanny/20"
-                }`}
+              className="btn-apple-primary w-full py-3 text-[17px] flex justify-center items-center gap-2"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Processing...
-                </span>
-              ) : "Sign In"}
+              {loading && <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>}
+              Sign In
             </button>
-          </form>
 
-          <div className="mt-8 pt-8 border-t border-slate-100 text-center">
-            <p className="text-slate-500 text-sm font-medium">
-              Don't have an account?{" "}
-              <button
-                onClick={() => navigate(role === "ROLE_PARENT" ? "/register-parent" : "/register-nanny")}
-                className="font-bold text-indigo-600 hover:underline"
-              >
-                Create Account
-              </button>
-            </p>
+            <div className="flex justify-between items-center mt-2">
+              <div className="h-[1px] bg-[#d2d2d7] flex-1"></div>
+              <span className="px-4 text-[#86868b] text-sm">or</span>
+              <div className="h-[1px] bg-[#d2d2d7] flex-1"></div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate("/register", { state: { role } })}
+              className="text-[#0071e3] text-sm font-medium hover:underline text-center"
+            >
+              Create your CareCircle ID
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="text-[#0071e3] text-sm hover:underline text-center -mt-2"
+            >
+              Forgotten your password?
+            </button>
           </div>
+
+        </form>
+      </div >
+
+      <footer className="mt-12 text-[#86868b] text-xs">
+        <p>Copyright © 2026 CareCircle Inc. All rights reserved.</p>
+        <div className="flex gap-4 justify-center mt-2">
+          <a href="#" className="hover:underline">Privacy Policy</a>
+          <span>|</span>
+          <a href="#" className="hover:underline">Terms of Use</a>
         </div>
-      </div>
-    </div>
+      </footer>
+    </div >
   );
 }

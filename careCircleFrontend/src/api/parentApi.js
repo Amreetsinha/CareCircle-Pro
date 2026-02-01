@@ -30,6 +30,16 @@ export const getParentProfile = async () => {
     return res.json();
 };
 
+export const updateParentProfile = async (data) => {
+    const res = await fetch(`${API_BASE_URL}/parents/profile`, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update parent profile");
+    return res.json();
+};
+
 export const addChild = async (data) => {
     const res = await fetch(`${API_BASE_URL}/parents/children`, {
         method: "POST",
@@ -47,6 +57,25 @@ export const getChildren = async () => {
     });
     if (!res.ok) throw new Error("Failed to fetch children");
     return res.json();
+};
+
+export const updateChild = async (id, data) => {
+    const res = await fetch(`${API_BASE_URL}/parents/children/${id}`, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update child");
+    return res.json();
+};
+
+export const deleteChild = async (id) => {
+    const res = await fetch(`${API_BASE_URL}/parents/children/${id}`, {
+        method: "DELETE",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed to delete child");
+    return true; // 204 No Content
 };
 
 export const getVerifiedCaregivers = async () => {

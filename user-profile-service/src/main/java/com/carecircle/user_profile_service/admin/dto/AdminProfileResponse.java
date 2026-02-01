@@ -1,4 +1,4 @@
-package com.carecircle.user_profile_service.admin.dto;	
+package com.carecircle.user_profile_service.admin.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,6 +14,7 @@ public class AdminProfileResponse {
     private final String adminLevel;
     private final Boolean isActive;
     private final LocalDateTime createdAt;
+    private final String phoneNumber;
     private final String address;
     private final String city;
 
@@ -24,15 +25,16 @@ public class AdminProfileResponse {
             String adminLevel,
             Boolean isActive,
             LocalDateTime createdAt,
+            String phoneNumber,
             String address,
-            String city
-    ) {
+            String city) {
         this.id = id;
         this.fullName = fullName;
         this.userEmail = userEmail;
         this.adminLevel = adminLevel;
         this.isActive = isActive;
         this.createdAt = createdAt;
+        this.phoneNumber = phoneNumber;
         this.address = address;
         this.city = city;
     }
@@ -59,6 +61,10 @@ public class AdminProfileResponse {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
     public String getAddress() {

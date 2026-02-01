@@ -1,115 +1,162 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import heroImage from "../assets/happy_nanny_hero.png";
 
 export default function Home() {
   const navigate = useNavigate();
 
+  // Mock Data
+  const nannies = [
+    { id: 1, name: "Sarah M.", role: "Certified Nanny", rating: 4.9, price: 25, experience: "5 Years", badges: ["CPR Certified", "Newborn Care"] },
+    { id: 2, name: "Jessica T.", role: "Babysitter", rating: 4.8, price: 18, experience: "3 Years", badges: ["Homework Help", "Pet Friendly"] },
+    { id: 3, name: "Emily R.", role: "Housekeeper & Nanny", rating: 5.0, price: 30, experience: "7 Years", badges: ["Cooking", "Cleaning", "First Aid"] },
+    { id: 4, name: "Michael B.", role: "Male Nanny", rating: 4.9, price: 22, experience: "4 Years", badges: ["Sports Coaching", "Tutoring"] },
+    { id: 5, name: "David L.", role: "Special Needs Care", rating: 5.0, price: 35, experience: "8 Years", badges: ["Certified", "Therapy Support"] },
+    { id: 6, name: "Amanda W.", role: "Au Pair", rating: 4.7, price: 20, experience: "2 Years", badges: ["Multi-lingual", "Driver"] },
+  ];
+
+  const scrollToNannies = () => {
+    const section = document.getElementById("nanny-listings");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
-    <div className="bg-slate-50 min-h-screen font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#f5f5f7]">
+
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-20 pb-20 px-6 bg-gradient-to-br from-white via-slate-50 to-indigo-50/30">
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-200/20 blur-[120px] rounded-full animate-float"></div>
-          <div className="absolute top-[20%] -right-[5%] w-[30%] h-[30%] bg-pink-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
+      <div className="relative w-full h-[85vh] flex items-center justify-center text-center px-6">
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroImage})` }}
+        >
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
         </div>
 
-        <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
-          <div className="text-left animate-fade-in-up">
-            <span className="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-wider text-indigo-600 uppercase bg-indigo-50 rounded-full">
-              Trusted Childcare Solutions
-            </span>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] mb-6">
-              Modern Care for <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
-                Modern Families
-              </span>
-            </h1>
-            <p className="text-lg text-slate-600 mb-10 max-w-lg leading-relaxed">
-              Connect with top-rated, background-checked nannies and babysitters in your neighborhood. Simple, secure, and stress-free.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <button
-                onClick={() => navigate("/register-parent")}
-                className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all active:scale-95 btn-premium"
-              >
-                Hire a Nanny
-              </button>
-              <button
-                onClick={() => navigate("/register-nanny")}
-                className="px-8 py-4 bg-white text-slate-900 font-bold rounded-2xl border-2 border-slate-100 shadow-lg hover:border-slate-200 hover:-translate-y-1 transition-all active:scale-95 btn-premium"
-              >
-                Become a Sitter
-              </button>
-            </div>
+        <div className="relative z-10 max-w-4xl mx-auto text-white">
+          <h1 className="text-[64px] leading-[1.05] font-semibold tracking-tight mb-6 drop-shadow-lg">
+            Care that feels like family.
+          </h1>
+          <p className="text-[24px] font-medium leading-relaxed max-w-2xl mx-auto mb-10 text-white/90 drop-shadow-md">
+            Safe, reliable, and loving care for your little ones. Connected with the tap of a button.
+          </p>
+          <div className="flex justify-center gap-6">
+            <button
+              onClick={scrollToNannies}
+              className="bg-white text-[#1d1d1f] text-[19px] font-medium px-8 py-4 rounded-full hover:bg-white/90 transition-all active:scale-95 shadow-lg"
+            >
+              Find a Caregiver
+            </button>
+            <button
+              onClick={() => navigate("/register", { state: { role: "ROLE_CARETAKER" } })}
+              className="bg-[#0071e3] text-white text-[19px] font-medium px-8 py-4 rounded-full hover:bg-[#0077ed] transition-all active:scale-95 shadow-lg"
+            >
+              Join as Caregiver
+            </button>
           </div>
+        </div>
+      </div>
 
-          <div className="relative animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
-              <img
-                src={heroImage}
-                alt="Happy Nanny"
-                className="w-full h-auto object-cover"
-              />
-              <div className="absolute bottom-6 left-6 right-6 p-6 glass-card rounded-2xl border border-white/30">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-400 rounded-full flex items-center justify-center text-white text-xl">✓</div>
-                  <div>
-                    <p className="font-bold text-slate-900">100% Verified Care</p>
-                    <p className="text-sm text-slate-600">Background checks completed</p>
-                  </div>
+      {/* Listings Grid (Target for Scroll) */}
+      <div id="nanny-listings" className="max-w-[1200px] mx-auto px-6 py-24 bg-[#f5f5f7]">
+        <div className="flex justify-between items-end mb-12">
+          <h2 className="text-[40px] font-semibold text-[#1d1d1f]">Verified Professionals</h2>
+          <button onClick={() => navigate("/find-nanny")} className="text-[#0071e3] text-[17px] hover:underline">View all ›</button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {nannies.map((nanny) => (
+            <div key={nanny.id} className="card-apple group cursor-pointer border border-transparent hover:border-[#0071e3]/30">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="text-[22px] font-semibold text-[#1d1d1f] leading-tight">{nanny.name}</h3>
+                  <p className="text-[#86868b] font-medium mt-1">{nanny.role}</p>
+                </div>
+                <div className="flex items-center bg-[#f5f5f7] px-3 py-1.5 rounded-full">
+                  <span className="text-[#f5a623] text-sm mr-1">★</span>
+                  <span className="text-sm font-bold text-[#1d1d1f]">{nanny.rating}</span>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-24 px-6 bg-white relative z-10">
-        <div className="container mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6">Why CareCircle?</h2>
-            <p className="text-slate-600 text-lg">We provide the most reliable and convenient platform for childcare services.</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { title: "Safe & Secure", desc: "Rigorous background checks for every professional.", icon: "🛡️" },
-              { title: "Easy Booking", desc: "Find and book near you in just a few clicks.", icon: "📱" },
-              { title: "Reliable Care", desc: "Trusted by thousands of happy families.", icon: "❤️" },
-            ].map((f, i) => (
-              <div
-                key={i}
-                className="p-10 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-300 hover:-translate-y-2 animate-fade-in-up"
-                style={{ animationDelay: `${0.1 * (i + 1)}s` }}
-              >
-                <div className="text-4xl mb-6">{f.icon}</div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">{f.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{f.desc}</p>
+              <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-[15px] mb-6">
+                <div className="flex flex-col">
+                  <span className="text-[#86868b] text-xs uppercase tracking-wide">Experience</span>
+                  <span className="font-medium text-[#1d1d1f]">{nanny.experience}</span>
+                </div>
+                <div className="flex flex-col text-right">
+                  <span className="text-[#86868b] text-xs uppercase tracking-wide">Rate</span>
+                  <span className="font-medium text-[#1d1d1f]">${nanny.price}/hr</span>
+                </div>
               </div>
-            ))}
-          </div>
+              <div className="flex flex-wrap gap-2">
+                {nanny.badges.map(badge => (
+                  <span key={badge} className="text-[11px] font-medium bg-[#f5f5f7] text-[#1d1d1f] px-2.5 py-1 rounded-md">
+                    {badge}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-      </section>
+      </div>
 
-      {/* CTA Section */}
-      <section className="py-24 px-6">
-        <div className="container mx-auto max-w-5xl bg-indigo-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-indigo-300 animate-fade-in-up">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-          <div className="relative z-10">
-            <h2 className="text-3xl md:text-5xl font-extrabold mb-8">Ready to find the perfect care?</h2>
-            <p className="text-indigo-100 text-lg mb-12 max-w-2xl mx-auto">Join the CareCircle community today and experience the future of childcare services.</p>
-            <div className="flex flex-wrap justify-center gap-6">
-              <button
-                onClick={() => navigate("/register-parent")}
-                className="px-10 py-5 bg-white text-indigo-600 font-bold rounded-2xl hover:bg-slate-50 transition-all active:scale-95 shadow-xl"
-              >
-                Get Started Now
-              </button>
+      {/* Stacking/Folding Cards Section - Rich White Theme */}
+      <div className="bg-white py-24 border-t border-[#d2d2d7]/30">
+        <div className="max-w-[700px] mx-auto px-6 text-center mb-20">
+          <h2 className="text-[56px] font-semibold tracking-tight text-[#1d1d1f] mb-4">Why CareCircle?</h2>
+          <p className="text-[24px] text-[#86868b]">Thoughtfully designed for peace of mind.</p>
+        </div>
+
+        <div className="max-w-[800px] mx-auto px-6 space-y-24 pb-32">
+
+          {/* Card 1 */}
+          <div className="sticky top-[120px] bg-[#fbfbfd] p-12 rounded-[40px] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-[#d2d2d7]/50 transition-transform duration-500 ease-out origin-top hover:scale-[1.02]">
+            <div className="flex flex-col md:flex-row items-center gap-10">
+              <div className="w-20 h-20 bg-[#e3f2fd] rounded-3xl flex items-center justify-center text-4xl shrink-0 text-[#0071e3]">
+                🛡️
+              </div>
+              <div>
+                <h3 className="text-[32px] font-semibold text-[#1d1d1f] mb-4">Safety First</h3>
+                <p className="text-[#86868b] text-[20px] leading-relaxed">
+                  Every caregiver is thoroughly vetted. We perform background checks, identity verification, and continuous monitoring to ensure your family's safety.
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* Card 2 */}
+          <div className="sticky top-[160px] bg-[#fbfbfd] p-12 rounded-[40px] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-[#d2d2d7]/50 transition-transform duration-500 ease-out origin-top hover:scale-[1.02]">
+            <div className="flex flex-col md:flex-row items-center gap-10">
+              <div className="w-20 h-20 bg-[#e8f5e9] rounded-3xl flex items-center justify-center text-4xl shrink-0 text-[#34c759]">
+                💳
+              </div>
+              <div>
+                <h3 className="text-[32px] font-semibold text-[#1d1d1f] mb-4">Seamless Payments</h3>
+                <p className="text-[#86868b] text-[20px] leading-relaxed">
+                  Secure, cashless transactions. Handle hourly rates, tips, and reimbursements directly within the app. Simple, transparent, and fast.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="sticky top-[200px] bg-[#fbfbfd] p-12 rounded-[40px] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-[#d2d2d7]/50 transition-transform duration-500 ease-out origin-top hover:scale-[1.02]">
+            <div className="flex flex-col md:flex-row items-center gap-10">
+              <div className="w-20 h-20 bg-[#f3e5f5] rounded-3xl flex items-center justify-center text-4xl shrink-0 text-[#bf5af2]">
+                🤝
+              </div>
+              <div>
+                <h3 className="text-[32px] font-semibold text-[#1d1d1f] mb-4">Perfect Match</h3>
+                <p className="text-[#86868b] text-[20px] leading-relaxed">
+                  We don't just show you lists. We connect you with caregivers who match your specific needs, values, and scheduling requirements.
+                </p>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </section>
+      </div>
+
     </div>
   );
 }
