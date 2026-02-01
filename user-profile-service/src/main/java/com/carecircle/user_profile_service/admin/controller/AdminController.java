@@ -166,6 +166,12 @@ public class AdminController {
         adminService.disableCaregiverProfile(userId, caregiverId, request.getReason());
     }
 
+    @GetMapping("/audits/profiles")
+    public List<com.carecircle.user_profile_service.admin.dto.ProfileVerificationAuditResponse> getProfileAudits(HttpServletRequest httpRequest) {
+        validateAdminAndGetUserId(httpRequest);
+        return adminService.getProfileAudits();
+    }
+
     // =========================
     // Helpers
     // =========================
