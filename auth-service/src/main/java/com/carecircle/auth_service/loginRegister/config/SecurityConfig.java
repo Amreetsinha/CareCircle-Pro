@@ -20,20 +20,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())  
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                		"/auth/register",
-                        "/auth/login",
-                        "/auth/verify-account",
-                        "/auth/forgot-password",
-                        "/auth/reset-password"
-                ).permitAll()
-                .anyRequest().authenticated()
-            );
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/auth/register",
+                                "/auth/login",
+                                "/auth/verify-account",
+                                "/auth/forgot-password",
+                                "/auth/reset-password",
+                                "/auth/health")
+                        .permitAll()
+                        .anyRequest().authenticated());
 
         return http.build();
     }
