@@ -49,7 +49,16 @@ export default function Navbar() {
               <span>Account</span>
               <div className="absolute right-0 top-full pt-2 hidden group-hover:block">
                 <div className="bg-white rounded-lg shadow-apple-card border border-[#d2d2d7] py-2 w-48 flex flex-col items-start overflow-hidden">
-                  <Link to={role === "ROLE_PARENT" ? "/parent-dashboard" : "/nanny-profile"} className="w-full px-4 py-2 hover:bg-[#f5f5f7] text-left">Dashboard</Link>
+                  <Link
+                    to={
+                      role === "ROLE_PARENT" ? "/parent-dashboard" :
+                        (role === "ROLE_CARETAKER" || role === "ROLE_CAREGIVER") ? "/caregiver-dashboard" :
+                          role === "ROLE_ADMIN" ? "/admin-dashboard" : "/"
+                    }
+                    className="w-full px-4 py-2 hover:bg-[#f5f5f7] text-left"
+                  >
+                    Dashboard
+                  </Link>
                   <button onClick={handleLogout} className="w-full px-4 py-2 hover:bg-[#f5f5f7] text-left text-red-500">Log Out</button>
                 </div>
               </div>

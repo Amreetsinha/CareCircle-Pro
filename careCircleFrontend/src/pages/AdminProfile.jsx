@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createAdminProfile } from "../api/adminApi";
+import { createAdminProfile, getAdminProfile, updateAdminProfile } from "../api/adminApi";
 import { getActiveCities } from "../api/cityApi";
 
 export default function AdminProfile() {
@@ -14,19 +14,34 @@ export default function AdminProfile() {
     });
 
     const [cities, setCities] = useState([]);
+    const [isEditing, setIsEditing] = useState(false);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchCities = async () => {
+        const fetchData = async () => {
             try {
+                // Fetch cities
                 const cityData = await getActiveCities();
                 setCities(cityData || []);
+
+                // Fetch existing profile
+                const data = await getAdminProfile();
+                if (data && data.fullName) {
+                    setIsEditing(true);
+                    setFormData({
+                        fullName: data.fullName || "",
+                        phoneNumber: data.phoneNumber || "",
+                        address: data.address || "",
+                        city: data.city || "",
+                        adminLevel: data.adminLevel || "ADMIN",
+                    });
+                }
             } catch (err) {
-                console.error("Failed to fetch cities", err);
+                console.log("No existing admin profile found or fetch error:", err);
             }
         };
-        fetchCities();
+        fetchData();
     }, []);
 
     const handleChange = (e) => {
@@ -39,8 +54,14 @@ export default function AdminProfile() {
         setMessage("");
 
         try {
-            await createAdminProfile(formData);
-            setMessage("✅ Admin profile created successfully!");
+            if (isEditing) {
+                await updateAdminProfile(formData);
+                setMessage("✅ Admin profile updated successfully!");
+            } else {
+                await createAdminProfile(formData);
+                setMessage("✅ Admin profile created successfully!");
+            }
+
             setTimeout(() => {
                 navigate("/admin-dashboard");
             }, 1500);
@@ -53,92 +74,119 @@ export default function AdminProfile() {
     };
 
     return (
-        <div className="min-h-screen pt-28 bg-gray-50 flex items-center justify-center p-8 font-sans">
-            <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-[600px] border border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">🛡️ Admin Profile Setup</h2>
-                <p className="text-gray-500 text-center mb-8">
-                    Complete your admin profile to access the dashboard
-                </p>
+        <div className="min-h-screen pt-28 flex items-center justify-center p-6 font-sans">
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[10%] right-[15%] w-[35%] h-[40%] bg-orange-200/20 blur-[120px] rounded-full animate-float"></div>
+                <div className="absolute bottom-[10%] left-[15%] w-[35%] h-[40%] bg-rose-200/20 blur-[120px] rounded-full animate-float" style={{ animationDelay: '-2s' }}></div>
+            </div>
 
-                {message && <p className={`mb-6 text-center font-semibold ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}>{message}</p>}
-
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-semibold text-gray-600 ml-1">Full Name</label>
-                        <input
-                            type="text"
-                            name="fullName"
-                            placeholder="e.g. System Admin"
-                            value={formData.fullName}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-400/10 transition-all placeholder-gray-300"
-                        />
+            <div className="relative z-10 w-full max-w-[600px] animate-fade-in-up">
+                <div className="card-apple p-10 md:p-12 shadow-2xl">
+                    <div className="text-center mb-10">
+                        <h2 className="text-3xl font-extrabold text-[#1d1d1f] mb-2">
+                            {isEditing ? "Edit Admin Profile" : "🛡️ Admin Profile Setup"}
+                        </h2>
+                        <p className="text-[#86868b] font-medium tracking-tight">
+                            {isEditing ? "Update your administrative details" : "Complete your profile to access the dashboard"}
+                        </p>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-semibold text-gray-600 ml-1">Phone Number</label>
-                        <input
-                            type="tel"
-                            name="phoneNumber"
-                            placeholder="e.g. +91 9000000000"
-                            value={formData.phoneNumber}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-400/10 transition-all placeholder-gray-300"
-                        />
-                    </div>
+                    {message && (
+                        <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${message.includes("✅") ? "bg-green-50 border border-green-100 text-green-600" : "bg-red-50 border border-red-100 text-red-600"}`}>
+                            <span className="text-lg">{message.includes("✅") ? "✅" : "⚠️"}</span>
+                            <p className="text-sm font-bold">{message}</p>
+                        </div>
+                    )}
 
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-semibold text-gray-600 ml-1">Address</label>
-                        <textarea
-                            name="address"
-                            placeholder="Your full address..."
-                            value={formData.address}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-400/10 transition-all placeholder-gray-300 resize-y min-h-[80px]"
-                        />
-                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        <div className="space-y-1.5">
+                            <label className="block text-sm font-bold text-slate-700 ml-1">Full Name</label>
+                            <input
+                                type="text"
+                                name="fullName"
+                                placeholder="e.g. System Admin"
+                                value={formData.fullName}
+                                onChange={handleChange}
+                                required
+                                className="input-apple"
+                            />
+                        </div>
 
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-semibold text-gray-600 ml-1">City</label>
-                        <select
-                            name="city"
-                            value={formData.city}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-400/10 transition-all bg-white"
-                        >
-                            <option value="">Select City</option>
-                            {cities.map((city) => (
-                                <option key={city.id} value={city.name}>{city.name}</option>
-                            ))}
-                        </select>
-                    </div>
+                        <div className="space-y-1.5">
+                            <label className="block text-sm font-bold text-slate-700 ml-1">Phone Number</label>
+                            <input
+                                type="tel"
+                                name="phoneNumber"
+                                placeholder="e.g. +91 9000000000"
+                                value={formData.phoneNumber}
+                                onChange={handleChange}
+                                required
+                                className="input-apple"
+                            />
+                        </div>
 
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-semibold text-gray-600 ml-1">Admin Level</label>
-                        <select
-                            name="adminLevel"
-                            value={formData.adminLevel}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-400/10 transition-all bg-white"
-                        >
-                            <option value="ADMIN">Admin</option>
-                            <option value="SUPER_ADMIN">Super Admin</option>
-                        </select>
-                    </div>
+                        <div className="space-y-1.5">
+                            <label className="block text-sm font-bold text-slate-700 ml-1">Address</label>
+                            <textarea
+                                name="address"
+                                placeholder="Your full address..."
+                                value={formData.address}
+                                onChange={handleChange}
+                                required
+                                className="input-apple min-h-[80px]"
+                            />
+                        </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full p-3.5 mt-4 bg-orange-500 text-white font-bold rounded-xl shadow-md hover:bg-orange-600 hover:-translate-y-0.5 transition-all active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                        {loading ? "Creating Profile..." : "Create Admin Profile"}
-                    </button>
-                </form>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div className="space-y-1.5">
+                                <label className="block text-sm font-bold text-slate-700 ml-1">City</label>
+                                <select
+                                    name="city"
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                    required
+                                    className="input-apple appearance-none bg-white/60"
+                                >
+                                    <option value="">Select City</option>
+                                    {cities.map((city) => (
+                                        <option key={city.id} value={city.name}>{city.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="block text-sm font-bold text-slate-700 ml-1">Admin Level</label>
+                                <select
+                                    name="adminLevel"
+                                    value={formData.adminLevel}
+                                    onChange={handleChange}
+                                    required
+                                    className="input-apple appearance-none bg-white/60"
+                                >
+                                    <option value="ADMIN">Admin</option>
+                                    <option value="SUPER_ADMIN">Super Admin</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="pt-4 flex flex-col gap-3">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="btn-apple-primary w-full py-4 text-lg font-bold shadow-lg"
+                            >
+                                {loading ? "Saving..." : (isEditing ? "Update Profile" : "Create Profile")}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => navigate("/admin-dashboard")}
+                                className="w-full py-2 text-slate-400 hover:text-slate-600 font-bold transition-colors text-sm"
+                            >
+                                {isEditing ? "Cancel" : "Back to Dashboard"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

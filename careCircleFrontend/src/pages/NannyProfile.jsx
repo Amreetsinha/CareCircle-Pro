@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   createCaregiverProfile,
-  getCaregiverProfile
+  getCaregiverProfile,
+  updateCaregiverProfile
 } from "../api/caregiverApi";
 import { getActiveCities } from "../api/cityApi";
 
 export default function NannyProfile() {
-  const [message, setMessage] = useState("");
-  const [cities, setCities] = useState([]);
-
-  /* ================= PROFILE ================= */
+  const navigate = useNavigate();
   const [profile, setProfile] = useState({
     fullName: "",
     phoneNumber: "",
@@ -21,21 +20,25 @@ export default function NannyProfile() {
     experienceYears: "",
   });
 
+  const [cities, setCities] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await getCaregiverProfile();
-        if (data) {
+        if (data && data.fullName) {
+          setIsEditing(true);
           setProfile({
             ...data,
-            age: data.age || "", // Ensure controlled component
+            age: data.age || "",
             experienceYears: data.experienceYears || ""
           });
-          console.log("Profile loaded");
         }
       } catch (err) {
-        // Ignore error if profile doesn't exist yet
-        console.log("No existing profile found or fetch error:", err);
+        console.log("No existing profile or fetch error (likely new):", err);
       }
     };
 
@@ -52,15 +55,15 @@ export default function NannyProfile() {
     fetchCities();
   }, []);
 
-
-
-  /* ================= HELPERS ================= */
-  const handleChange = (e, setter, state) => {
-    setter({ ...state, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  /* ================= PROFILE SUBMIT ================= */
-  const submitProfile = async () => {
+  const submitProfile = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
     try {
       const payload = {
         fullName: profile.fullName.trim(),
@@ -69,88 +72,145 @@ export default function NannyProfile() {
         gender: profile.gender.toUpperCase(),
         address: profile.address.trim(),
         city: profile.city.trim(),
-        bio: profile.bio.trim(),
+        bio: (profile.bio || "").trim(),
         experienceYears: Number(profile.experienceYears || 0),
       };
 
-      await createCaregiverProfile(payload);
-      setMessage("✅ Profile saved successfully!");
+      if (isEditing) {
+        await updateCaregiverProfile(payload);
+        setMessage("✅ Profile updated successfully!");
+      } else {
+        await createCaregiverProfile(payload);
+        setMessage("✅ Profile created successfully!");
+      }
+
+      setTimeout(() => {
+        navigate("/caregiver-dashboard");
+      }, 1500);
+
     } catch (error) {
       console.error("PROFILE ERROR:", error);
       setMessage("❌ " + (error.message || "Failed to save profile"));
+    } finally {
+      setLoading(false);
     }
   };
 
-
-
-  /* ================= UI ================= */
   return (
-    <div className="max-w-[700px] mx-auto mt-32 mb-10 p-8 bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.12)] font-sans">
-      <h2 className="text-center text-2xl font-bold text-gray-800 mb-6">Nanny / Caregiver Onboarding</h2>
-
-      {message && <p className={`mb-5 text-center font-semibold ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}>{message}</p>}
-
-      {/* ================= PROFILE ================= */}
-      <h3 className="mt-8 mb-3 text-lg font-bold text-gray-700 border-b-2 border-gray-100 pb-1.5">Profile Details</h3>
-
-      <div className="flex flex-col gap-3.5">
-        <input name="fullName" placeholder="Full Name *" value={profile.fullName}
-          onChange={(e) => handleChange(e, setProfile, profile)}
-          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
-        />
-
-        <input name="phoneNumber" placeholder="Phone Number *" value={profile.phoneNumber}
-          onChange={(e) => handleChange(e, setProfile, profile)}
-          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
-        />
-
-        <input type="number" name="age" placeholder="Age *" value={profile.age}
-          onChange={(e) => handleChange(e, setProfile, profile)}
-          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
-        />
-
-        <select name="gender" value={profile.gender}
-          onChange={(e) => handleChange(e, setProfile, profile)}
-          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 bg-white"
-        >
-          <option value="">Select Gender *</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-
-        <textarea name="address" placeholder="Address *" value={profile.address}
-          onChange={(e) => handleChange(e, setProfile, profile)}
-          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300 resize-y min-h-[80px]"
-        />
-
-        <select name="city" value={profile.city}
-          onChange={(e) => handleChange(e, setProfile, profile)}
-          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 bg-white"
-        >
-          <option value="">Select City *</option>
-          {cities.map((city) => (
-            <option key={city.id} value={city.name}>{city.name}</option>
-          ))}
-        </select>
-
-        <input type="number" name="experienceYears" value={profile.experienceYears}
-          placeholder="Experience (years)"
-          onChange={(e) => handleChange(e, setProfile, profile)}
-          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
-        />
-
-        <textarea name="bio" placeholder="Short Bio" value={profile.bio}
-          onChange={(e) => handleChange(e, setProfile, profile)}
-          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300 resize-y min-h-[90px]"
-        />
-
-        <button onClick={submitProfile} className="w-full p-3.5 bg-gradient-to-r from-blue-600 to-blue-400 text-white font-bold rounded-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(49,130,206,0.35)] active:translate-y-0">
-          Save Profile
-        </button>
+    <div className="min-h-screen pt-28 flex items-center justify-center p-6 font-sans">
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[10%] right-[10%] w-[30%] h-[35%] bg-blue-200/20 blur-[100px] rounded-full animate-float"></div>
+        <div className="absolute bottom-[10%] left-[10%] w-[30%] h-[35%] bg-indigo-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
       </div>
 
+      <div className="relative z-10 w-full max-w-[700px] animate-fade-in-up">
+        <div className="card-apple p-10 md:p-12 shadow-2xl">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-extrabold text-[#1d1d1f] mb-2">
+              {isEditing ? "Edit Your Profile" : "Caregiver Onboarding"}
+            </h2>
+            <p className="text-[#86868b] font-medium tracking-tight">
+              {isEditing ? "Keep your clinical details up to date" : "Tell us about your caregiver experience"}
+            </p>
+          </div>
 
+          {message && (
+            <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${message.includes("✅") ? "bg-green-50 border border-green-100 text-green-600" : "bg-red-50 border border-red-100 text-red-600"}`}>
+              <span className="text-lg">{message.includes("✅") ? "✅" : "⚠️"}</span>
+              <p className="text-sm font-bold">{message}</p>
+            </div>
+          )}
+
+          <form onSubmit={submitProfile} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold text-slate-700 ml-1">Full Name</label>
+                <input name="fullName" placeholder="Full Name" value={profile.fullName}
+                  onChange={handleChange} required className="input-apple"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold text-slate-700 ml-1">Phone Number</label>
+                <input name="phoneNumber" placeholder="Phone Number" value={profile.phoneNumber}
+                  onChange={handleChange} required className="input-apple"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold text-slate-700 ml-1">Age</label>
+                <input type="number" name="age" placeholder="Age" value={profile.age}
+                  onChange={handleChange} required className="input-apple"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold text-slate-700 ml-1">Gender</label>
+                <select name="gender" value={profile.gender}
+                  onChange={handleChange} required className="input-apple bg-white/60"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-bold text-slate-700 ml-1">Address</label>
+              <textarea name="address" placeholder="Residential Address" value={profile.address}
+                onChange={handleChange} required className="input-apple min-h-[80px]"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold text-slate-700 ml-1">City</label>
+                <select name="city" value={profile.city}
+                  onChange={handleChange} required className="input-apple bg-white/60"
+                >
+                  <option value="">Select City</option>
+                  {cities.map((city) => (
+                    <option key={city.id} value={city.name}>{city.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold text-slate-700 ml-1">Years of Experience</label>
+                <input type="number" name="experienceYears" value={profile.experienceYears}
+                  placeholder="Experience (years)" onChange={handleChange} className="input-apple"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-bold text-slate-700 ml-1">Short Bio</label>
+              <textarea name="bio" placeholder="Tell us about yourself..." value={profile.bio}
+                onChange={handleChange} className="input-apple min-h-[90px]"
+              />
+            </div>
+
+            <div className="pt-4 flex flex-col gap-3">
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-apple-primary w-full py-4 text-lg font-bold shadow-lg"
+              >
+                {loading ? "Processing..." : (isEditing ? "Update Profile" : "Save Profile")}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/caregiver-dashboard")}
+                className="w-full py-2 text-slate-400 hover:text-slate-600 font-bold transition-colors text-sm"
+              >
+                {isEditing ? "Cancel" : "Skip for now"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

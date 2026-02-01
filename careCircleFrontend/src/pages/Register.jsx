@@ -112,14 +112,14 @@ export default function Register() {
   const selectedRole = roles.find(r => r.value === form.role);
 
   return (
-    <div className="min-h-screen pt-28 flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-6 font-sans">
+    <div className="min-h-screen pt-28 flex items-center justify-center p-6 font-sans">
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[10%] right-[10%] w-[30%] h-[35%] bg-indigo-200/20 blur-[100px] rounded-full animate-float"></div>
         <div className="absolute bottom-[10%] left-[10%] w-[30%] h-[35%] bg-pink-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
       </div>
 
       <div className="relative z-10 w-full max-w-[540px] animate-fade-in-up">
-        <div className="glass-card rounded-[2.5rem] p-10 md:p-12 border-white/50 shadow-2xl">
+        <div className="card-apple p-10 md:p-12 shadow-2xl">
           <div className="text-center mb-10">
             <img src={logo} alt="CareCircle Logo" className="w-20 h-20 mx-auto mb-6 shadow-lg rounded-2xl rotate-3" />
             <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Join CareCircle</h2>
@@ -157,7 +157,7 @@ export default function Register() {
 
             <div className="space-y-2">
               <label className="block text-sm font-bold text-slate-700 ml-1">Email</label>
-              <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="name@example.com" required className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50" />
+              <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="name@example.com" required className="input-apple" />
             </div>
 
             <div className="space-y-2">
@@ -168,7 +168,7 @@ export default function Register() {
                 onChange={handleChange}
                 placeholder="••••••••"
                 showStrengthMeter={true}
-                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50"
+                className="input-apple"
               />
             </div>
 

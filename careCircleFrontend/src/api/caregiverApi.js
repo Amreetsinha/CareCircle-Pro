@@ -27,6 +27,16 @@ export const getCaregiverProfile = async () => {
   return res.json();
 };
 
+export const updateCaregiverProfile = async (data) => {
+  const res = await fetch(`${API_BASE_URL}/caregiver/profile`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update caregiver profile");
+  return res.json();
+};
+
 export const addCapability = async (data) => {
   const res = await fetch(`${API_BASE_URL}/caregiver/capabilities`, {
     method: "POST",

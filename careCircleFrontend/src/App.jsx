@@ -23,6 +23,7 @@ import AdminProfile from "./pages/AdminProfile";
 
 // New Nanny pages
 import NannyProfile from "./pages/NannyProfile";
+import CaregiverDashboard from "./pages/CaregiverDashboard";
 // import NannyQualification from "./pages/NannyQualification";
 // import NannyCertification from "./pages/NannyCertification";
 
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="/admin-profile" element={<AdminProfile />} />
 
         {/* Nanny onboarding flow */}
+        <Route path="/caregiver-dashboard" element={<CaregiverDashboard />} />
         <Route path="/nanny-profile" element={<NannyProfile />} />
         {/* <Route path="/nanny-qualification" element={<NannyQualification />} />
         <Route path="/nanny-certification" element={<NannyCertification />} /> */}

@@ -4,6 +4,8 @@ import { jwtDecode } from "jwt-decode";
 import PasswordInput from "../components/PasswordInput";
 import { login } from "../api/authApi";
 import { getParentProfile } from "../api/parentApi";
+import { getAdminProfile } from "../api/adminApi";
+import { getCaregiverProfile } from "../api/caregiverApi";
 import logo from "../assets/logo.png";
 
 export default function Login() {
@@ -22,7 +24,7 @@ export default function Login() {
     const savedRole = localStorage.getItem("role");
     if (token) {
       if (savedRole === "ROLE_PARENT") navigate("/parent-dashboard");
-      else if (savedRole === "ROLE_CARETAKER") navigate("/nanny-profile");
+      else if (savedRole === "ROLE_CARETAKER" || savedRole === "ROLE_CAREGIVER") navigate("/caregiver-dashboard");
       else if (savedRole === "ROLE_ADMIN") navigate("/admin-dashboard");
       else navigate("/");
       return;
@@ -60,9 +62,20 @@ export default function Login() {
           navigate("/parent-profile");
         }
       } else if (tokenRole === "ROLE_CARETAKER" || tokenRole === "ROLE_CAREGIVER") {
-        navigate("/nanny-profile");
+        try {
+          const profile = await getCaregiverProfile();
+          // If profile exists and has a name, go to dashboard
+          navigate(profile && profile.fullName ? "/caregiver-dashboard" : "/nanny-profile");
+        } catch {
+          navigate("/nanny-profile");
+        }
       } else if (tokenRole === "ROLE_ADMIN") {
-        navigate("/admin-dashboard");
+        try {
+          const profile = await getAdminProfile();
+          navigate(profile && profile.fullName ? "/admin-dashboard" : "/admin-profile");
+        } catch {
+          navigate("/admin-profile");
+        }
       } else {
         navigate("/");
       }
@@ -80,7 +93,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center pt-32 bg-[#f5f5f7] px-6">
+    <div className="min-h-screen flex flex-col items-center pt-32 px-6">
 
       {/* Apple ID Style Header */}
       <div className="mb-10 text-center">

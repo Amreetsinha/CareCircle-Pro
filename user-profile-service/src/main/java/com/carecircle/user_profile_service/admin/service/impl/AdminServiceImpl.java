@@ -48,35 +48,46 @@ public class AdminServiceImpl implements AdminService {
         private final ChildRepository childRepository;
 
         @Override
-    public void createAdminProfile(
-            UUID userId,
-            String adminEmail,
-            String fullName,
-            String phoneNumber,
-            String adminLevel,
-            String address,
-            String city) {
-        if (adminProfileRepository.findByUserEmail(adminEmail).isPresent()) {
-            throw new RuntimeException("Admin profile already exists");
+        public AdminProfileResponse createAdminProfile(
+                        UUID userId,
+                        String adminEmail,
+                        String fullName,
+                        String phoneNumber,
+                        String adminLevel,
+                        String address,
+                        String city) {
+                if (adminProfileRepository.findByUserEmail(adminEmail).isPresent()) {
+                        throw new RuntimeException("Admin profile already exists");
+                }
+
+                // Validate City
+                if (city != null && !city.isBlank()) {
+                        matchingIntegrationService.getCityByName(city)
+                                        .orElseThrow(() -> new IllegalArgumentException("City not found: " + city));
+                }
+
+                AdminProfile admin = new AdminProfile(
+                                userId,
+                                adminEmail,
+                                fullName,
+                                phoneNumber,
+                                adminLevel,
+                                address,
+                                city);
+
+                AdminProfile saved = adminProfileRepository.save(admin);
+
+                return new AdminProfileResponse(
+                                saved.getId(),
+                                saved.getFullName(),
+                                saved.getUserEmail(),
+                                saved.getAdminLevel(),
+                                saved.getIsActive(),
+                                saved.getCreatedAt(),
+                                saved.getPhoneNumber(),
+                                saved.getAddress(),
+                                saved.getCity());
         }
-
-        // Validate City
-        if (city != null && !city.isBlank()) {
-        	matchingIntegrationService.getCityByName(city)
-                     .orElseThrow(() -> new IllegalArgumentException("City not found: " + city));
-        }
-
-        AdminProfile admin = new AdminProfile(
-                userId,
-                adminEmail,
-                fullName,
-                phoneNumber,
-                adminLevel,
-                address,
-                city);
-
-        adminProfileRepository.save(admin);
-    }
 
         @Override
         public AdminProfileResponse getMyProfile(UUID userId) {
@@ -90,49 +101,52 @@ public class AdminServiceImpl implements AdminService {
                                 admin.getAdminLevel(),
                                 admin.getIsActive(),
                                 admin.getCreatedAt(),
+                                admin.getPhoneNumber(),
                                 admin.getAddress(),
                                 admin.getCity());
         }
 
         @Override
-    public AdminProfileResponse updateMyProfile(
-            UUID userId,
-            String fullName,
-            String phoneNumber,
-            String adminLevel,
-            String address,
-            String city) {
-        AdminProfile admin = adminProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new AdminProfileNotFoundException(String.valueOf(userId)));
+        public AdminProfileResponse updateMyProfile(
+                        UUID userId,
+                        String fullName,
+                        String phoneNumber,
+                        String adminLevel,
+                        String address,
+                        String city) {
+                AdminProfile admin = adminProfileRepository.findByUserId(userId)
+                                .orElseThrow(() -> new AdminProfileNotFoundException(String.valueOf(userId)));
 
-        // Validate City if changed/provided
-        if (city != null && !city.equals(admin.getCity())) {
-            if (!city.isBlank()) {
-            	matchingIntegrationService.getCityByName(city)
-                        .orElseThrow(() -> new CityNotFoundException("City not found: " + city));
-            }
-            admin.setCity(city);
+                // Validate City if changed/provided
+                if (city != null && !city.equals(admin.getCity())) {
+                        if (!city.isBlank()) {
+                                matchingIntegrationService.getCityByName(city)
+                                                .orElseThrow(() -> new CityNotFoundException(
+                                                                "City not found: " + city));
+                        }
+                        admin.setCity(city);
+                }
+
+                // Update other fields
+                admin.setFullName(fullName);
+                admin.setPhoneNumber(phoneNumber);
+                admin.setAdminLevel(adminLevel);
+                admin.setAddress(address);
+
+                // Save will trigger @PreUpdate to update the updatedAt timestamp
+                AdminProfile saved = adminProfileRepository.save(admin);
+
+                return new AdminProfileResponse(
+                                saved.getId(),
+                                saved.getFullName(),
+                                saved.getUserEmail(),
+                                saved.getAdminLevel(),
+                                saved.getIsActive(),
+                                saved.getCreatedAt(),
+                                saved.getPhoneNumber(),
+                                saved.getAddress(),
+                                saved.getCity());
         }
-
-        // Update other fields
-        admin.setFullName(fullName);
-        admin.setPhoneNumber(phoneNumber);
-        admin.setAdminLevel(adminLevel);
-        admin.setAddress(address);
-
-        // Save will trigger @PreUpdate to update the updatedAt timestamp
-        AdminProfile saved = adminProfileRepository.save(admin);
-
-        return new AdminProfileResponse(
-                saved.getId(),
-                saved.getFullName(),
-                saved.getUserEmail(),
-                saved.getAdminLevel(),
-                saved.getIsActive(),
-                saved.getCreatedAt(),
-                saved.getAddress(),
-                saved.getCity());
-    }
 
         @Override
         public void deleteMyProfile(UUID userId) {
@@ -147,118 +161,116 @@ public class AdminServiceImpl implements AdminService {
         // Statistics & Listing
         // =========================
 
-    @Override
-    public AdminStatisticsResponse getStatistics() {
-            long totalParents = parentProfileRepository.count();
-            long totalChildren = childRepository.count();
-            long totalCaregivers = caregiverProfileRepository.count();
+        @Override
+        public AdminStatisticsResponse getStatistics() {
+                long totalParents = parentProfileRepository.count();
+                long totalChildren = childRepository.count();
+                long totalCaregivers = caregiverProfileRepository.count();
 
-            return new AdminStatisticsResponse(
-                            totalParents,
-                            totalChildren,
-                            totalCaregivers);
-    }
-
-
-    @Override
-    public PagedResponse<ParentSummaryResponse> getAllParents(String city, int page, int size) {
-        if (city != null && !city.isBlank()) {
-            matchingIntegrationService.getCityByName(city)
-                    .orElseThrow(() -> new CityNotFoundException("City not found: " + city));
+                return new AdminStatisticsResponse(
+                                totalParents,
+                                totalChildren,
+                                totalCaregivers);
         }
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ParentProfile> parentsPage;
+        @Override
+        public PagedResponse<ParentSummaryResponse> getAllParents(String city, int page, int size) {
+                if (city != null && !city.isBlank()) {
+                        matchingIntegrationService.getCityByName(city)
+                                        .orElseThrow(() -> new CityNotFoundException("City not found: " + city));
+                }
 
-        if (city != null && !city.isBlank()) {
-            parentsPage = parentProfileRepository.findByCityIgnoreCase(city, pageable);
-        } else {
-            parentsPage = parentProfileRepository.findAll(pageable);
+                Pageable pageable = PageRequest.of(page, size);
+                Page<ParentProfile> parentsPage;
+
+                if (city != null && !city.isBlank()) {
+                        parentsPage = parentProfileRepository.findByCityIgnoreCase(city, pageable);
+                } else {
+                        parentsPage = parentProfileRepository.findAll(pageable);
+                }
+
+                List<ParentSummaryResponse> content = parentsPage.getContent().stream()
+                                .map(parent -> {
+                                        long childCount = childRepository.countByParent(parent);
+                                        return new ParentSummaryResponse(
+                                                        parent.getId(),
+                                                        parent.getFullName(),
+                                                        parent.getUserEmail(),
+                                                        parent.getCity(),
+                                                        childCount);
+                                })
+                                .collect(Collectors.toList());
+
+                return new PagedResponse<>(
+                                content,
+                                parentsPage.getNumber(),
+                                parentsPage.getSize(),
+                                parentsPage.getTotalElements(),
+                                parentsPage.getTotalPages(),
+                                parentsPage.isLast());
         }
 
-        List<ParentSummaryResponse> content = parentsPage.getContent().stream()
-                .map(parent -> {
-                    long childCount = childRepository.countByParent(parent);
-                    return new ParentSummaryResponse(
-                            parent.getId(),
-                            parent.getFullName(),
-                            parent.getUserEmail(),
-                            parent.getCity(),
-                            childCount);
-                })
-                .collect(Collectors.toList());
+        @Override
+        public java.util.List<ChildResponse> getChildrenForParent(
+                        UUID parentId) {
+                ParentProfile parent = parentProfileRepository
+                                .findById(parentId)
+                                .orElseThrow(() -> new RuntimeException("Parent not found"));
 
-        return new PagedResponse<>(
-                content,
-                parentsPage.getNumber(),
-                parentsPage.getSize(),
-                parentsPage.getTotalElements(),
-                parentsPage.getTotalPages(),
-                parentsPage.isLast());
-    }
-
-    @Override
-    public java.util.List<ChildResponse> getChildrenForParent(
-            UUID parentId) {
-        ParentProfile parent = parentProfileRepository
-                .findById(parentId)
-                .orElseThrow(() -> new RuntimeException("Parent not found"));
-
-        return childRepository.findAllByParent(parent).stream()
-                .map(child -> new ChildResponse(
-                        child.getId(),
-                        child.getName(),
-                        child.getAge(),
-                        child.getGender(),
-                        child.getSpecialNeeds(),
-                        child.getCreatedAt()))
-                .collect(java.util.stream.Collectors.toList());
-    }
-
-    @Override
-    public PagedResponse<CaregiverSummaryResponse> getAllCaregivers(String city, int page, int size) {
-        if (city != null && !city.isBlank()) {
-            matchingIntegrationService.getCityByName(city)
-                    .orElseThrow(() -> new CityNotFoundException("City not found: " + city));
+                return childRepository.findAllByParent(parent).stream()
+                                .map(child -> new ChildResponse(
+                                                child.getId(),
+                                                child.getName(),
+                                                child.getAge(),
+                                                child.getGender(),
+                                                child.getSpecialNeeds(),
+                                                child.getCreatedAt()))
+                                .collect(java.util.stream.Collectors.toList());
         }
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<CaregiverProfile> caregiversPage;
+        @Override
+        public PagedResponse<CaregiverSummaryResponse> getAllCaregivers(String city, int page, int size) {
+                if (city != null && !city.isBlank()) {
+                        matchingIntegrationService.getCityByName(city)
+                                        .orElseThrow(() -> new CityNotFoundException("City not found: " + city));
+                }
 
-        if (city != null && !city.isBlank()) {
-            caregiversPage = caregiverProfileRepository.findByCityIgnoreCase(city, pageable);
-        } else {
-            caregiversPage = caregiverProfileRepository.findAll(pageable);
+                Pageable pageable = PageRequest.of(page, size);
+                Page<CaregiverProfile> caregiversPage;
+
+                if (city != null && !city.isBlank()) {
+                        caregiversPage = caregiverProfileRepository.findByCityIgnoreCase(city, pageable);
+                } else {
+                        caregiversPage = caregiverProfileRepository.findAll(pageable);
+                }
+
+                List<CaregiverSummaryResponse> content = caregiversPage.getContent().stream()
+                                .map(caregiver -> new CaregiverSummaryResponse(
+                                                caregiver.getId(),
+                                                caregiver.getFullName(),
+                                                caregiver.getUserEmail(),
+                                                caregiver.getCity(),
+                                                caregiver.getVerificationStatus(),
+                                                caregiver.getIsActive(),
+                                                caregiver.getExperienceYears()))
+                                .collect(Collectors.toList());
+
+                return new PagedResponse<>(
+                                content,
+                                caregiversPage.getNumber(),
+                                caregiversPage.getSize(),
+                                caregiversPage.getTotalElements(),
+                                caregiversPage.getTotalPages(),
+                                caregiversPage.isLast());
         }
-
-        List<CaregiverSummaryResponse> content = caregiversPage.getContent().stream()
-                .map(caregiver -> new CaregiverSummaryResponse(
-                        caregiver.getId(),
-                        caregiver.getFullName(),
-                        caregiver.getUserEmail(),
-                        caregiver.getCity(),
-                        caregiver.getVerificationStatus(),
-                        caregiver.getIsActive(),
-                        caregiver.getExperienceYears()))
-                .collect(Collectors.toList());
-
-        return new PagedResponse<>(
-                content,
-                caregiversPage.getNumber(),
-                caregiversPage.getSize(),
-                caregiversPage.getTotalElements(),
-                caregiversPage.getTotalPages(),
-                caregiversPage.isLast());
-    }
 
         public AdminServiceImpl(
                         AdminProfileRepository adminProfileRepository,
                         ProfileVerificationAuditRepository auditRepository,
                         CaregiverProfileRepository caregiverProfileRepository,
                         ParentProfileRepository parentProfileRepository,
-                        ChildRepository childRepository, 
-                        MatchingIntegrationService matchingIntegrationService
-                        ) {
+                        ChildRepository childRepository,
+                        MatchingIntegrationService matchingIntegrationService) {
                 this.adminProfileRepository = adminProfileRepository;
                 this.auditRepository = auditRepository;
                 this.caregiverProfileRepository = caregiverProfileRepository;
@@ -380,16 +392,17 @@ public class AdminServiceImpl implements AdminService {
         @Override
         public List<ProfileVerificationAuditResponse> getProfileAudits() {
                 List<ProfileVerificationAudit> audits = auditRepository.findAll();
-                if (audits.isEmpty()) return Collections.emptyList();
+                if (audits.isEmpty())
+                        return Collections.emptyList();
 
                 // Group target IDs by type to fetch names in batch
                 Set<UUID> caregiverIds = audits.stream()
-                        .filter(a -> "CAREGIVER_PROFILE".equals(a.getTargetType()))
-                        .map(ProfileVerificationAudit::getTargetId)
-                        .collect(Collectors.toSet());
+                                .filter(a -> "CAREGIVER_PROFILE".equals(a.getTargetType()))
+                                .map(ProfileVerificationAudit::getTargetId)
+                                .collect(Collectors.toSet());
 
                 Map<UUID, String> caregiverNames = caregiverProfileRepository.findAllById(caregiverIds).stream()
-                        .collect(Collectors.toMap(CaregiverProfile::getId, CaregiverProfile::getFullName));
+                                .collect(Collectors.toMap(CaregiverProfile::getId, CaregiverProfile::getFullName));
 
                 return audits.stream().map(a -> {
                         String caregiverName = "Unknown";
@@ -398,18 +411,17 @@ public class AdminServiceImpl implements AdminService {
                         }
 
                         return new ProfileVerificationAuditResponse(
-                                a.getId(),
-                                a.getAdmin().getUserId(),
-                                a.getAdmin().getFullName(),
-                                a.getTargetType(),
-                                a.getTargetId(),
-                                caregiverName,
-                                a.getAction(),
-                                a.getPreviousStatus(),
-                                a.getNewStatus(),
-                                a.getReason(),
-                                a.getCreatedAt()
-                        );
+                                        a.getId(),
+                                        a.getAdmin().getUserId(),
+                                        a.getAdmin().getFullName(),
+                                        a.getTargetType(),
+                                        a.getTargetId(),
+                                        caregiverName,
+                                        a.getAction(),
+                                        a.getPreviousStatus(),
+                                        a.getNewStatus(),
+                                        a.getReason(),
+                                        a.getCreatedAt());
                 }).sorted(Comparator.comparing(ProfileVerificationAuditResponse::getCreatedAt).reversed()).toList();
         }
 }

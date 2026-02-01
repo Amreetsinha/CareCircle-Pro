@@ -14,7 +14,7 @@ import com.carecircle.user_profile_service.child.dto.ChildResponse;
  */
 public interface AdminService {
 
-	void createAdminProfile(
+	AdminProfileResponse createAdminProfile(
 			UUID userId,
 			String adminEmail,
 			String fullName,
@@ -37,15 +37,15 @@ public interface AdminService {
 
 	// ===== Statistics & Listing =====
 
-	 AdminStatisticsResponse getStatistics();
+	AdminStatisticsResponse getStatistics();
 
 	PagedResponse<ParentSummaryResponse> getAllParents(
-            String city, int page, int size);
+			String city, int page, int size);
 
 	java.util.List<ChildResponse> getChildrenForParent(UUID parentId);
 
 	PagedResponse<com.carecircle.user_profile_service.admin.dto.CaregiverSummaryResponse> getAllCaregivers(
-            String city, int page, int size);
+			String city, int page, int size);
 
 	// ===== Caregiver Profile =====
 

@@ -18,6 +18,25 @@ export const createAdminProfile = async (data) => {
     return res.json();
 };
 
+export const getAdminProfile = async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/profile`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed to fetch admin profile");
+    return res.json();
+};
+
+export const updateAdminProfile = async (data) => {
+    const res = await fetch(`${API_BASE_URL}/admin/profile`, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update admin profile");
+    return res.json();
+};
+
 export const verifyCaregiver = async (id, reason) => {
     const res = await fetch(`${API_BASE_URL}/admin/caregivers/${id}/verify`, {
         method: "POST",

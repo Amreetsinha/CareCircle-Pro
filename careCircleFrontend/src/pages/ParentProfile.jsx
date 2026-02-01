@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createParentProfile, getParentProfile } from "../api/parentApi";
+import { createParentProfile, getParentProfile, updateParentProfile } from "../api/parentApi";
 import { getActiveCities } from "../api/cityApi";
 
 export default function ParentProfile() {
@@ -13,6 +13,7 @@ export default function ParentProfile() {
   });
 
   const [cities, setCities] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +26,8 @@ export default function ParentProfile() {
 
         // Fetch profile
         const data = await getParentProfile();
-        if (data) {
+        if (data && data.fullName) {
+          setIsEditing(true);
           setFormData({
             fullName: data.fullName || "",
             phoneNumber: data.phoneNumber || "",
@@ -34,7 +36,7 @@ export default function ParentProfile() {
           });
         }
       } catch (error) {
-        console.log("Fetch error:", error);
+        console.log("Fetch error (likely new profile):", error);
       }
     };
     fetchData();
@@ -50,11 +52,18 @@ export default function ParentProfile() {
     setMessage("");
 
     try {
-      await createParentProfile(formData);
-      setMessage("✅ Profile saved successfully! Redirecting to dashboard...");
+      if (isEditing) {
+        await updateParentProfile(formData);
+        setMessage("✅ Profile updated successfully!");
+      } else {
+        await createParentProfile(formData);
+        setMessage("✅ Profile created successfully!");
+      }
+
       setTimeout(() => {
         navigate("/parent-dashboard");
       }, 1500);
+
     } catch (error) {
       console.error("Profile Save Error:", error);
       setMessage("❌ " + (error.message || "Failed to save profile"));
@@ -63,22 +72,22 @@ export default function ParentProfile() {
     }
   };
 
-  const handleSkip = () => {
-    navigate("/parent-dashboard");
-  };
-
   return (
-    <div className="min-h-screen pt-28 flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-6 font-sans">
+    <div className="min-h-screen pt-28 flex items-center justify-center p-6 font-sans">
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[10%] right-[10%] w-[30%] h-[35%] bg-indigo-200/20 blur-[100px] rounded-full animate-float"></div>
         <div className="absolute bottom-[10%] left-[10%] w-[30%] h-[35%] bg-pink-200/20 blur-[100px] rounded-full animate-float" style={{ animationDelay: '-1.5s' }}></div>
       </div>
 
       <div className="relative z-10 w-full max-w-[600px] animate-fade-in-up">
-        <div className="glass-card rounded-[2.5rem] p-10 md:p-12 border-white/50 shadow-2xl">
+        <div className="card-apple p-10 md:p-12 shadow-2xl">
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Build Your Main Profile</h2>
-            <p className="text-slate-500 font-medium tracking-tight">Tell us a bit about yourself</p>
+            <h2 className="text-3xl font-extrabold text-slate-900 mb-2">
+              {isEditing ? "Edit Profile" : "Build Your Profile"}
+            </h2>
+            <p className="text-slate-500 font-medium tracking-tight">
+              {isEditing ? "Update your personal details" : "Tell us a bit about yourself"}
+            </p>
           </div>
 
           {message && (
@@ -98,7 +107,7 @@ export default function ParentProfile() {
                 value={formData.fullName}
                 onChange={handleChange}
                 required
-                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50"
+                className="input-apple"
               />
             </div>
 
@@ -111,7 +120,7 @@ export default function ParentProfile() {
                 value={formData.phoneNumber}
                 onChange={handleChange}
                 required
-                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50"
+                className="input-apple"
               />
             </div>
 
@@ -123,7 +132,7 @@ export default function ParentProfile() {
                 value={formData.address}
                 onChange={handleChange}
                 required
-                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50 min-h-[100px] resize-y"
+                className="input-apple min-h-[100px] resize-y"
               />
             </div>
 
@@ -134,7 +143,7 @@ export default function ParentProfile() {
                 value={formData.city}
                 onChange={handleChange}
                 required
-                className="input-premium focus:border-indigo-500 focus:ring-indigo-500/10 bg-slate-50/50 appearance-none"
+                className="input-apple appearance-none bg-white/60"
               >
                 <option value="" disabled>Select your city</option>
                 {cities.map((city) => (
@@ -149,17 +158,17 @@ export default function ParentProfile() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 rounded-2xl font-extrabold text-white transition-all shadow-xl active:scale-95 bg-[#0071e3] hover:bg-[#0077ed]"
+                className="btn-apple-primary w-full py-3.5 text-lg font-bold shadow-lg"
               >
-                {loading ? "Saving..." : "Save Profile"}
+                {loading ? "Saving..." : (isEditing ? "Update Profile" : "Save Profile")}
               </button>
 
               <button
                 type="button"
-                onClick={handleSkip}
+                onClick={() => navigate("/parent-dashboard")}
                 className="w-full py-3 text-slate-400 hover:text-slate-600 font-bold transition-colors text-sm"
               >
-                Skip for now
+                {isEditing ? "Cancel" : "Skip for now"}
               </button>
             </div>
           </form>
