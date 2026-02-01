@@ -7,6 +7,7 @@ import com.carecircle.matchingBookingService.matching.dto.CaregiverServiceRespon
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class MatchingController {
     }
 
     @GetMapping("/search")
-    public Page<CaregiverServiceResponse> searchServices(
+    public ResponseEntity<Page<CaregiverServiceResponse>> searchServices(
             @RequestParam(required = false) String city,
             @RequestParam(required = false) UUID serviceId,
             @RequestParam(defaultValue = "0") int page,
@@ -57,7 +58,7 @@ public class MatchingController {
 
         Map<UUID, UserIntegrationService.UserSummary> userMap = userService.getUsersInfo(caregiverIds);
 
-        return entityPage.map(c -> new CaregiverServiceResponse(
+        Page<CaregiverServiceResponse> responsePage = entityPage.map(c -> new CaregiverServiceResponse(
                 c.getId(),
                 c.getCaregiverId(),
                 userMap.containsKey(c.getCaregiverId()) ? userMap.get(c.getCaregiverId()).fullName() : "Unknown Caregiver",
@@ -68,5 +69,7 @@ public class MatchingController {
                 c.getMinChildAge(),
                 c.getMaxChildAge()
         ));
+
+        return ResponseEntity.ok(responsePage);
     }
 }

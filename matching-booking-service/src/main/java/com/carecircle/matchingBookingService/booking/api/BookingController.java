@@ -9,6 +9,8 @@ import com.carecircle.matchingBookingService.booking.repository.BookingRepositor
 import com.carecircle.matchingBookingService.caregiver.repository.CaregiverServiceRepository;
 import com.carecircle.matchingBookingService.service.repository.ServiceRepository;
 import com.carecircle.matchingBookingService.common.service.UserIntegrationService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.temporal.ChronoUnit;
@@ -41,7 +43,7 @@ public class BookingController {
     }
 
     @PostMapping
-    public Booking createBooking(
+    public ResponseEntity<Booking> createBooking(
             @RequestHeader("X-User-Id") UUID parentId,
             @RequestBody CreateBookingRequest request
     ) {
@@ -111,11 +113,11 @@ public class BookingController {
                 )
         );
 
-        return booking;
+        return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
     
     @GetMapping("/{bookingId}")
-    public BookingDetailResponse getBooking(
+    public ResponseEntity<BookingDetailResponse> getBooking(
             @PathVariable UUID bookingId
     ) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -135,7 +137,7 @@ public class BookingController {
         String parentName = userInfo.containsKey(booking.getParentId()) ? userInfo.get(booking.getParentId()).fullName() : "Unknown Parent";
         String caregiverName = userInfo.containsKey(booking.getCaregiverId()) ? userInfo.get(booking.getCaregiverId()).fullName() : "Unknown Caregiver";
 
-        return new BookingDetailResponse(
+        BookingDetailResponse response = new BookingDetailResponse(
                 booking.getId(),
                 booking.getParentId(),
                 parentName,
@@ -155,5 +157,6 @@ public class BookingController {
                 booking.getCreatedAt(),
                 booking.getUpdatedAt()
         );
+        return ResponseEntity.ok(response);
     }
 }

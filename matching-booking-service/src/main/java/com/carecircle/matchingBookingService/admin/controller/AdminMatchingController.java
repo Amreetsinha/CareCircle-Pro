@@ -6,6 +6,7 @@ import com.carecircle.matchingBookingService.caregiver.model.CaregiverCertificat
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,19 +27,19 @@ public class AdminMatchingController {
     }
 
     @GetMapping("/certifications/pending")
-    public List<CaregiverCertification> getPendingCertifications(HttpServletRequest request) {
+    public ResponseEntity<List<CaregiverCertification>> getPendingCertifications(HttpServletRequest request) {
         validateAdmin(request);
-        return adminMatchingService.getPendingCertifications();
+        return ResponseEntity.ok(adminMatchingService.getPendingCertifications());
     }
 
     @GetMapping("/audits/certifications")
-    public List<CertificationVerificationAuditResponse> getCertificationAudits(HttpServletRequest request) {
+    public ResponseEntity<List<CertificationVerificationAuditResponse>> getCertificationAudits(HttpServletRequest request) {
         validateAdmin(request);
-        return adminMatchingService.getCertificationAudits();
+        return ResponseEntity.ok(adminMatchingService.getCertificationAudits());
     }
 
     @PostMapping("/certifications/{id}/verify")
-    public void verifyCertification(
+    public ResponseEntity<Void> verifyCertification(
             @PathVariable UUID id,
             @RequestBody @Valid VerificationRequest request,
             HttpServletRequest httpRequest
@@ -46,10 +47,11 @@ public class AdminMatchingController {
         UUID adminId = validateAdmin(httpRequest);
         String adminEmail = getAdminEmail(httpRequest);
         adminMatchingService.verifyCertification(adminId, adminEmail, id, request.getReason());
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/certifications/{id}/reject")
-    public void rejectCertification(
+    public ResponseEntity<Void> rejectCertification(
             @PathVariable UUID id,
             @RequestBody @Valid VerificationRequest request,
             HttpServletRequest httpRequest
@@ -57,6 +59,7 @@ public class AdminMatchingController {
         UUID adminId = validateAdmin(httpRequest);
         String adminEmail = getAdminEmail(httpRequest);
         adminMatchingService.rejectCertification(adminId, adminEmail, id, request.getReason());
+        return ResponseEntity.ok().build();
     }
 
     private UUID validateAdmin(HttpServletRequest request) {

@@ -6,6 +6,7 @@ import com.carecircle.user_profile_service.common.dto.UserBatchLookupRequest;
 import com.carecircle.user_profile_service.common.dto.UserSummaryDto;
 import com.carecircle.user_profile_service.common.service.MatchingIntegrationService;
 import com.carecircle.user_profile_service.parent.repository.ParentProfileRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -39,17 +40,17 @@ public class CommonLookupController {
     }
 
     @GetMapping("/cities")
-    public List<MatchingIntegrationService.CityDto> getCities() {
-        return matchingService.getAllCities();
+    public ResponseEntity<List<MatchingIntegrationService.CityDto>> getCities() {
+        return ResponseEntity.ok(matchingService.getAllCities());
     }
 
     @GetMapping("/services")
-    public List<MatchingIntegrationService.ServiceDto> getServices() {
-        return matchingService.getAllServices();
+    public ResponseEntity<List<MatchingIntegrationService.ServiceDto>> getServices() {
+        return ResponseEntity.ok(matchingService.getAllServices());
     }
 
     @PostMapping("/users")
-    public List<UserSummaryDto> lookupUsers(@RequestBody UserBatchLookupRequest request) {
+    public ResponseEntity<List<UserSummaryDto>> lookupUsers(@RequestBody UserBatchLookupRequest request) {
         List<UUID> ids = request.getUserIds();
         List<UserSummaryDto> results = new ArrayList<>();
 
@@ -66,17 +67,18 @@ public class CommonLookupController {
                 .map(a -> new UserSummaryDto(a.getUserId(), a.getFullName(), "ROLE_ADMIN"))
                 .collect(Collectors.toList()));
 
-        return results;
+        return ResponseEntity.ok(results);
     }
 
     @GetMapping("/users/{userId}")
-    public UserSummaryDto lookupUser(@PathVariable UUID userId) {
-        return parentRepository.findByUserId(userId)
+    public ResponseEntity<UserSummaryDto> lookupUser(@PathVariable UUID userId) {
+        UserSummaryDto user = parentRepository.findByUserId(userId)
                 .map(p -> new UserSummaryDto(p.getUserId(), p.getFullName(), "ROLE_PARENT"))
                 .or(() -> caregiverRepository.findByUserId(userId)
                         .map(c -> new UserSummaryDto(c.getUserId(), c.getFullName(), "ROLE_CARETAKER")))
                 .or(() -> adminRepository.findByUserId(userId)
                         .map(a -> new UserSummaryDto(a.getUserId(), a.getFullName(), "ROLE_ADMIN")))
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        return ResponseEntity.ok(user);
     }
 }
