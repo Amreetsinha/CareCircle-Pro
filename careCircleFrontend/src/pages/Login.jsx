@@ -17,13 +17,24 @@ export default function Login() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Redirect if already logged in
+    const token = localStorage.getItem("token");
+    const savedRole = localStorage.getItem("role");
+    if (token) {
+      if (savedRole === "ROLE_PARENT") navigate("/parent-dashboard");
+      else if (savedRole === "ROLE_CARETAKER") navigate("/nanny-profile");
+      else if (savedRole === "ROLE_ADMIN") navigate("/admin-dashboard");
+      else navigate("/");
+      return;
+    }
+
     if (location.state?.role) {
       setRole(location.state.role);
     }
     if (location.state?.email) {
       setEmail(location.state.email);
     }
-  }, [location.state]);
+  }, [location.state, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

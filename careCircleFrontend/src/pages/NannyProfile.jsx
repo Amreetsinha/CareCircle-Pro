@@ -3,8 +3,11 @@ import {
   createCaregiverProfile,
   getCaregiverProfile
 } from "../api/caregiverApi";
+import { getActiveCities } from "../api/cityApi";
+
 export default function NannyProfile() {
   const [message, setMessage] = useState("");
+  const [cities, setCities] = useState([]);
 
   /* ================= PROFILE ================= */
   const [profile, setProfile] = useState({
@@ -35,7 +38,18 @@ export default function NannyProfile() {
         console.log("No existing profile found or fetch error:", err);
       }
     };
+
+    const fetchCities = async () => {
+      try {
+        const cityData = await getActiveCities();
+        setCities(cityData || []);
+      } catch (err) {
+        console.error("Failed to fetch cities", err);
+      }
+    };
+
     fetchProfile();
+    fetchCities();
   }, []);
 
 
@@ -110,10 +124,15 @@ export default function NannyProfile() {
           className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300 resize-y min-h-[80px]"
         />
 
-        <input name="city" placeholder="City *" value={profile.city}
+        <select name="city" value={profile.city}
           onChange={(e) => handleChange(e, setProfile, profile)}
-          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300"
-        />
+          className="w-full p-3 text-sm border-2 border-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 bg-white"
+        >
+          <option value="">Select City *</option>
+          {cities.map((city) => (
+            <option key={city.id} value={city.name}>{city.name}</option>
+          ))}
+        </select>
 
         <input type="number" name="experienceYears" value={profile.experienceYears}
           placeholder="Experience (years)"

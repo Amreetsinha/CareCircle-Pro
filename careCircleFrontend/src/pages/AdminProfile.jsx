@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createAdminProfile } from "../api/adminApi";
+import { getActiveCities } from "../api/cityApi";
 
 export default function AdminProfile() {
     const navigate = useNavigate();
@@ -12,8 +13,21 @@ export default function AdminProfile() {
         adminLevel: "ADMIN",
     });
 
+    const [cities, setCities] = useState([]);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchCities = async () => {
+            try {
+                const cityData = await getActiveCities();
+                setCities(cityData || []);
+            } catch (err) {
+                console.error("Failed to fetch cities", err);
+            }
+        };
+        fetchCities();
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -89,15 +103,18 @@ export default function AdminProfile() {
 
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-semibold text-gray-600 ml-1">City</label>
-                        <input
-                            type="text"
+                        <select
                             name="city"
-                            placeholder="e.g. Hyderabad"
                             value={formData.city}
                             onChange={handleChange}
                             required
-                            className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-400/10 transition-all placeholder-gray-300"
-                        />
+                            className="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-400/10 transition-all bg-white"
+                        >
+                            <option value="">Select City</option>
+                            {cities.map((city) => (
+                                <option key={city.id} value={city.name}>{city.name}</option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
