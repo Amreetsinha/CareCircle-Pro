@@ -128,6 +128,10 @@ public class CaregiverService {
     public void deactivate() {
         this.active = false;
     }
+
+    public void activate() {
+        this.active = true;
+    }
     
     public void setExtraPrice(Double extraPrice) {
         this.extraPrice = extraPrice;

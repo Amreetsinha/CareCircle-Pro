@@ -44,14 +44,15 @@ public class AdminMatchingServiceImpl implements AdminMatchingService {
     }
 
     @Override
-    public List<CaregiverCertification> getPendingCertifications() {
+    public List<com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse> getPendingCertifications() {
         return certificationRepository.findAll().stream()
                 .filter(c -> "PENDING".equals(c.getVerificationStatus()))
+                .map(this::mapToResponse)
                 .toList();
     }
 
     @Override
-    public PagedResponse<CaregiverCertification> getPagedCertifications(List<String> statuses, int page, int size) {
+    public PagedResponse<com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse> getPagedCertifications(List<String> statuses, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<CaregiverCertification> certPage;
 
@@ -61,13 +62,38 @@ public class AdminMatchingServiceImpl implements AdminMatchingService {
             certPage = certificationRepository.findAll(pageable);
         }
 
+        List<com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse> dtos = certPage.getContent().stream()
+                .map(this::mapToResponse)
+                .toList();
+
         return new PagedResponse<>(
-                certPage.getContent(),
+                dtos,
                 certPage.getNumber(),
                 certPage.getSize(),
                 certPage.getTotalElements(),
                 certPage.getTotalPages(),
                 certPage.isLast());
+    }
+
+    private com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse mapToResponse(CaregiverCertification cert) {
+        String serviceName = null;
+        if (cert.getServiceId() != null) {
+            serviceName = serviceRepository.findById(cert.getServiceId())
+                    .map(com.carecircle.matchingBookingService.service.model.ServiceEntity::getServiceName)
+                    .orElse("Unknown Service");
+        }
+
+        return new com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse(
+                cert.getId(),
+                cert.getCaregiverId(),
+                cert.getServiceId(),
+                serviceName,
+                cert.getName(),
+                cert.getIssuedBy(),
+                cert.getValidTill(),
+                cert.getVerificationStatus(),
+                cert.getIsActive()
+        );
     }
 
     @Override
@@ -85,14 +111,13 @@ public class AdminMatchingServiceImpl implements AdminMatchingService {
 
         logAudit(adminId, adminEmail, "CERTIFICATION", certificationId, "VERIFY", previousStatus, "VERIFIED", reason);
 
-        // Enable associated service if applicable
+        // Enable associated service when verified
         if (cert.getServiceId() != null) {
             caregiverServiceRepository.findByCaregiverIdAndServiceId(cert.getCaregiverId(), cert.getServiceId())
                     .ifPresent(service -> {
-                        // We can implicitly 'activate' the service or we allow the user to define
-                        // 'active'
-                        // but logic checks certification. For now, let's just log or ensure it's not
-                        // disabled by system.
+                        service.activate(); // Auto-activate service
+                        caregiverServiceRepository.save(service);
+                        logAudit(adminId, adminEmail, "SERVICE", service.getId(), "ACTIVATE", "INACTIVE", "ACTIVE", "Certification Verified: " + reason);
                     });
         }
     }

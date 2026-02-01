@@ -28,13 +28,13 @@ public class AdminMatchingController {
     }
 
     @GetMapping("/certifications/pending")
-    public ResponseEntity<List<CaregiverCertification>> getPendingCertifications(HttpServletRequest request) {
+    public ResponseEntity<List<com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse>> getPendingCertifications(HttpServletRequest request) {
         validateAdmin(request);
         return ResponseEntity.ok(adminMatchingService.getPendingCertifications());
     }
 
     @GetMapping("/certifications")
-    public ResponseEntity<PagedResponse<CaregiverCertification>> getAllCertifications(
+    public ResponseEntity<PagedResponse<com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse>> getAllCertifications(
             @RequestParam(required = false) List<String> status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

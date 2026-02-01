@@ -17,15 +17,18 @@ public class CaregiverServiceController {
     private final CaregiverServiceRepository caregiverServiceRepository;
     private final com.carecircle.matchingBookingService.caregiver.repository.CaregiverCertificationRepository certificationRepository;
     private final com.carecircle.matchingBookingService.caregiver.repository.CaregiverRatingRepository ratingRepository;
+    private final com.carecircle.matchingBookingService.service.repository.ServiceRepository serviceRepository;
 
     public CaregiverServiceController(
             CaregiverServiceRepository caregiverServiceRepository,
             com.carecircle.matchingBookingService.caregiver.repository.CaregiverCertificationRepository certificationRepository,
-            com.carecircle.matchingBookingService.caregiver.repository.CaregiverRatingRepository ratingRepository
+            com.carecircle.matchingBookingService.caregiver.repository.CaregiverRatingRepository ratingRepository,
+            com.carecircle.matchingBookingService.service.repository.ServiceRepository serviceRepository
     ) {
         this.caregiverServiceRepository = caregiverServiceRepository;
         this.certificationRepository = certificationRepository;
         this.ratingRepository = ratingRepository;
+        this.serviceRepository = serviceRepository;
     }
 
     // ===========================
@@ -69,7 +72,7 @@ public class CaregiverServiceController {
             @RequestHeader("X-User-Id") UUID caregiverId,
             @RequestHeader("X-User-Role") String role
     ) {
-        return ResponseEntity.ok(caregiverServiceRepository.findByCaregiverIdAndActiveTrue(caregiverId));
+        return ResponseEntity.ok(caregiverServiceRepository.findByCaregiverId(caregiverId));
     }
     
     // ===========================
@@ -111,10 +114,33 @@ public class CaregiverServiceController {
     }
 
     @GetMapping("/certifications")
-    public ResponseEntity<List<com.carecircle.matchingBookingService.caregiver.model.CaregiverCertification>> getMyCertifications(
+    public ResponseEntity<List<com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse>> getMyCertifications(
             @RequestHeader("X-User-Id") UUID caregiverId
     ) {
-        return ResponseEntity.ok(certificationRepository.findByCaregiverId(caregiverId));
+        List<com.carecircle.matchingBookingService.caregiver.model.CaregiverCertification> certs = certificationRepository.findByCaregiverId(caregiverId);
+        
+        List<com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse> response = certs.stream()
+                .map(cert -> {
+                    String serviceName = null;
+                    if (cert.getServiceId() != null) {
+                        serviceName = serviceRepository.findById(cert.getServiceId())
+                                .map(com.carecircle.matchingBookingService.service.model.ServiceEntity::getServiceName)
+                                .orElse("Unknown Service");
+                    }
+                    return new com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse(
+                            cert.getId(),
+                            cert.getCaregiverId(),
+                            cert.getServiceId(),
+                            serviceName,
+                            cert.getName(),
+                            cert.getIssuedBy(),
+                            cert.getValidTill(),
+                            cert.getVerificationStatus(),
+                            cert.getIsActive()
+                    );
+                }).toList();
+                
+        return ResponseEntity.ok(response);
     }
     
     // ===========================

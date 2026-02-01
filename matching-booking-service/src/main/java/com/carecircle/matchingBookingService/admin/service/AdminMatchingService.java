@@ -9,9 +9,9 @@ import java.util.UUID;
 
 public interface AdminMatchingService {
 
-    List<CaregiverCertification> getPendingCertifications();
+    List<com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse> getPendingCertifications();
 
-    PagedResponse<CaregiverCertification> getPagedCertifications(List<String> statuses, int page, int size);
+    PagedResponse<com.carecircle.matchingBookingService.caregiver.api.dto.CaregiverCertificationResponse> getPagedCertifications(List<String> statuses, int page, int size);
 
     void verifyCertification(UUID adminId, String adminEmail, UUID certificationId, String reason);
 
