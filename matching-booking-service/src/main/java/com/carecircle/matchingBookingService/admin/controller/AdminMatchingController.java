@@ -1,5 +1,6 @@
 package com.carecircle.matchingBookingService.admin.controller;
 
+import com.carecircle.matchingBookingService.admin.dto.CertificationVerificationAuditResponse;
 import com.carecircle.matchingBookingService.admin.service.AdminMatchingService;
 import com.carecircle.matchingBookingService.caregiver.model.CaregiverCertification;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,10 +31,10 @@ public class AdminMatchingController {
         return adminMatchingService.getPendingCertifications();
     }
 
-    @GetMapping("/audits")
-    public List<com.carecircle.matchingBookingService.admin.model.VerificationAudit> getAllAudits(HttpServletRequest request) {
+    @GetMapping("/audits/certifications")
+    public List<CertificationVerificationAuditResponse> getCertificationAudits(HttpServletRequest request) {
         validateAdmin(request);
-        return adminMatchingService.getAllAudits();
+        return adminMatchingService.getCertificationAudits();
     }
 
     @PostMapping("/certifications/{id}/verify")
