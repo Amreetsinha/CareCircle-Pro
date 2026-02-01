@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import {
   createCaregiverProfile,
   getCaregiverProfile,
-  updateCaregiverProfile
+  updateCaregiverProfile,
+  deleteCaregiverProfile
 } from "../api/caregiverApi";
 import { getActiveCities } from "../api/cityApi";
 
@@ -57,6 +58,21 @@ export default function NannyProfile() {
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("⚠️ Are you sure you want to delete your profile? This action cannot be undone.")) {
+      setLoading(true);
+      try {
+        await deleteCaregiverProfile();
+        alert("Profile deleted successfully.");
+        navigate("/caregiver-dashboard");
+      } catch (error) {
+        setMessage("❌ Failed to delete profile");
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const submitProfile = async (e) => {
@@ -200,13 +216,26 @@ export default function NannyProfile() {
               >
                 {loading ? "Processing..." : (isEditing ? "Update Profile" : "Save Profile")}
               </button>
-              <button
-                type="button"
-                onClick={() => navigate("/caregiver-dashboard")}
-                className="w-full py-2 text-slate-400 hover:text-slate-600 font-bold transition-colors text-sm"
-              >
-                {isEditing ? "Cancel" : "Skip for now"}
-              </button>
+
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => navigate("/caregiver-dashboard")}
+                  className="flex-1 py-3 text-slate-500 hover:text-slate-800 font-bold transition-colors text-sm border border-slate-200 rounded-xl hover:bg-slate-50"
+                >
+                  {isEditing ? "Cancel" : "Skip for now"}
+                </button>
+
+                {isEditing && (
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="flex-1 py-3 text-red-500 hover:text-red-700 font-bold transition-colors text-sm border border-red-100 rounded-xl hover:bg-red-50"
+                  >
+                    Delete Account
+                  </button>
+                )}
+              </div>
             </div>
           </form>
         </div>

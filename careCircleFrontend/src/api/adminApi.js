@@ -74,3 +74,11 @@ export const getAdminStatistics = async () => {
     if (!res.ok) throw new Error("Failed to fetch admin statistics");
     return res.json();
 };
+export const deleteAdminProfile = async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/profile`, {
+        method: "DELETE",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed to delete admin profile");
+    return true;
+};

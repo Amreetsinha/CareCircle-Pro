@@ -74,3 +74,11 @@ export const getCertifications = async () => {
   if (!res.ok) throw new Error("Failed to fetch certifications");
   return res.json();
 };
+export const deleteCaregiverProfile = async () => {
+  const res = await fetch(`${API_BASE_URL}/caregiver/profile`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to delete caregiver profile");
+  return true;
+};

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createAdminProfile, getAdminProfile, updateAdminProfile } from "../api/adminApi";
+import { createAdminProfile, getAdminProfile, updateAdminProfile, deleteAdminProfile } from "../api/adminApi";
 import { getActiveCities } from "../api/cityApi";
 
 export default function AdminProfile() {
@@ -46,6 +46,21 @@ export default function AdminProfile() {
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleDelete = async () => {
+        if (window.confirm("⚠️ Are you sure you want to delete your profile? This will revoke your administrative access.")) {
+            setLoading(true);
+            try {
+                await deleteAdminProfile();
+                alert("Profile deleted successfully.");
+                navigate("/admin-dashboard");
+            } catch (error) {
+                setMessage("❌ Failed to delete profile");
+            } finally {
+                setLoading(false);
+            }
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -177,13 +192,26 @@ export default function AdminProfile() {
                             >
                                 {loading ? "Saving..." : (isEditing ? "Update Profile" : "Create Profile")}
                             </button>
-                            <button
-                                type="button"
-                                onClick={() => navigate("/admin-dashboard")}
-                                className="w-full py-2 text-slate-400 hover:text-slate-600 font-bold transition-colors text-sm"
-                            >
-                                {isEditing ? "Cancel" : "Back to Dashboard"}
-                            </button>
+
+                            <div className="flex gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/admin-dashboard")}
+                                    className="flex-1 py-3 text-slate-500 hover:text-slate-800 font-bold transition-colors text-sm border border-slate-200 rounded-xl hover:bg-slate-50"
+                                >
+                                    {isEditing ? "Cancel" : "Back to Dashboard"}
+                                </button>
+
+                                {isEditing && (
+                                    <button
+                                        type="button"
+                                        onClick={handleDelete}
+                                        className="flex-1 py-3 text-red-500 hover:text-red-700 font-bold transition-colors text-sm border border-red-100 rounded-xl hover:bg-red-50"
+                                    >
+                                        Delete Profile
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </form>
                 </div>
