@@ -106,6 +106,19 @@ export const getAllCaregivers = async (city = "", statuses = [], page = 0, size 
     return res.json();
 };
 
+export const getAllCertifications = async (statuses = [], page = 0, size = 5) => {
+    let url = `${API_BASE_URL}/admin/matching/certifications?page=${page}&size=${size}`;
+    if (statuses && statuses.length > 0) {
+        url += `&status=${statuses.join(",")}`;
+    }
+    const res = await fetch(url, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed to fetch certifications");
+    return res.json();
+};
+
 export const getPendingCertifications = async () => {
     const res = await fetch(`${API_BASE_URL}/admin/matching/certifications/pending`, {
         method: "GET",
