@@ -37,25 +37,46 @@ export const updateCaregiverProfile = async (data) => {
   return res.json();
 };
 
-export const addCapability = async (data) => {
-  const res = await fetch(`${API_BASE_URL}/caregiver/capabilities`, {
+// Services (Capabilities)
+export const addService = async (data) => {
+  const res = await fetch(`${API_BASE_URL}/caregiver/services`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to add capability");
+  if (!res.ok) throw new Error("Failed to add service");
   return res.json();
 };
 
-export const getCapabilities = async () => {
-  const res = await fetch(`${API_BASE_URL}/caregiver/capabilities`, {
+export const getServices = async () => {
+  const res = await fetch(`${API_BASE_URL}/caregiver/services`, {
     method: "GET",
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   });
-  if (!res.ok) throw new Error("Failed to fetch capabilities");
+  if (!res.ok) throw new Error("Failed to fetch services");
   return res.json();
 };
 
+export const updateService = async (data) => {
+  const res = await fetch(`${API_BASE_URL}/caregiver/services`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update service");
+  return res.json();
+};
+
+export const deleteService = async (id) => {
+  const res = await fetch(`${API_BASE_URL}/caregiver/services/${id}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to delete service");
+  return true;
+};
+
+// Certifications
 export const addCertification = async (data) => {
   const res = await fetch(`${API_BASE_URL}/caregiver/certifications`, {
     method: "POST",
@@ -74,6 +95,26 @@ export const getCertifications = async () => {
   if (!res.ok) throw new Error("Failed to fetch certifications");
   return res.json();
 };
+
+export const updateCertification = async (id, data) => {
+  const res = await fetch(`${API_BASE_URL}/caregiver/certifications/${id}`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update certification");
+  return res.json();
+};
+
+export const deleteCertification = async (id) => {
+  const res = await fetch(`${API_BASE_URL}/caregiver/certifications/${id}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to delete certification");
+  return true;
+};
+
 export const deleteCaregiverProfile = async () => {
   const res = await fetch(`${API_BASE_URL}/caregiver/profile`, {
     method: "DELETE",

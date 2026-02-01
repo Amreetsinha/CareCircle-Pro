@@ -28,6 +28,7 @@ import ManageCities from "./pages/ManageCities";
 // New Nanny pages
 import NannyProfile from "./pages/NannyProfile";
 import CaregiverDashboard from "./pages/CaregiverDashboard";
+import CaregiverServices from "./pages/CaregiverServices";
 import FindCaregivers from "./pages/FindCaregivers";
 
 export default function App() {
@@ -69,8 +70,7 @@ export default function App() {
         {/* Nanny onboarding flow */}
         <Route path="/caregiver-dashboard" element={<CaregiverDashboard />} />
         <Route path="/nanny-profile" element={<NannyProfile />} />
-        {/* <Route path="/nanny-qualification" element={<NannyQualification />} />
-        <Route path="/nanny-certification" element={<NannyCertification />} /> */}
+        <Route path="/caregiver-services" element={<CaregiverServices />} />
 
         {/* Fallback: redirect unknown paths to home */}
         <Route path="*" element={<Home />} />

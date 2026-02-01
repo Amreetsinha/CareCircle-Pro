@@ -47,7 +47,12 @@ spring:
           uri: http://localhost:8083
           predicates:
             - Path=/parents/**
-          # Controller expects /parents...
+
+        # Specific Caregiver routes for Matching/Booking
+        - id: matching-service-caregiver-ops
+          uri: http://localhost:8085
+          predicates:
+            - Path=/caregiver/services/**, /caregiver/certifications/**, /caregiver/rating/**
 
         - id: user-profile-caregiver
           uri: http://localhost:8083

@@ -120,10 +120,9 @@ export default function CaregiverDashboard() {
 
             </div>
 
-            {/* Secondary Actions */}
             <div className="max-w-[1200px] mx-auto mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <div
-                    onClick={() => navigate("/nanny-profile")}
+                    onClick={() => navigate("/caregiver-services")}
                     className="p-6 bg-white/40 backdrop-blur-md rounded-2xl border border-white/50 flex items-center justify-between cursor-pointer hover:bg-white/60 transition-all"
                 >
                     <div className="flex items-center gap-4">
@@ -139,7 +138,7 @@ export default function CaregiverDashboard() {
                 </div>
 
                 <div
-                    onClick={() => navigate("/nanny-profile")}
+                    onClick={() => navigate("/caregiver-services")}
                     className="p-6 bg-white/40 backdrop-blur-md rounded-2xl border border-white/50 flex items-center justify-between cursor-pointer hover:bg-white/60 transition-all"
                 >
                     <div className="flex items-center gap-4">
