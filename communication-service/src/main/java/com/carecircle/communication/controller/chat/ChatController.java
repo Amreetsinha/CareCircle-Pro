@@ -4,7 +4,6 @@ import com.carecircle.communication.dto.request.AddParticipantRequest;
 import com.carecircle.communication.dto.request.CreateChatRoomRequest;
 import com.carecircle.communication.dto.request.SendMessageRequest;
 import com.carecircle.communication.dto.response.ChatMessageResponse;
-import com.carecircle.communication.dto.response.ChatMessageResponse;
 import com.carecircle.communication.dto.response.ChatRoomInitializationResponse;
 import com.carecircle.communication.dto.response.ChatRoomSummaryResponse;
 import com.carecircle.communication.service.interfaces.ChatService;
