@@ -162,7 +162,14 @@ export const createService = async (data) => {
         headers: getHeaders(),
         body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("Failed to create service");
+    if (!res.ok) {
+        let msg = "Failed to create service";
+        try {
+            const err = await res.json();
+            msg = err.message || msg;
+        } catch (e) { }
+        throw new Error(msg);
+    }
     return res.json();
 };
 
@@ -172,7 +179,14 @@ export const updateService = async (id, data) => {
         headers: getHeaders(),
         body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("Failed to update service");
+    if (!res.ok) {
+        let msg = "Failed to update service";
+        try {
+            const err = await res.json();
+            msg = err.message || msg;
+        } catch (e) { }
+        throw new Error(msg);
+    }
     return res.json();
 };
 
@@ -181,7 +195,14 @@ export const deleteService = async (id) => {
         method: "DELETE",
         headers: getHeaders(),
     });
-    if (!res.ok) throw new Error("Failed to delete service");
+    if (!res.ok) {
+        let msg = "Failed to delete service";
+        try {
+            const err = await res.json();
+            msg = err.message || msg;
+        } catch (e) { }
+        throw new Error(msg);
+    }
     return true;
 };
 
@@ -191,7 +212,14 @@ export const createCity = async (data) => {
         headers: getHeaders(),
         body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("Failed to create city");
+    if (!res.ok) {
+        let msg = "Failed to create city";
+        try {
+            const err = await res.json();
+            msg = err.message || msg;
+        } catch (e) { }
+        throw new Error(msg);
+    }
     return res.json();
 };
 
@@ -201,7 +229,14 @@ export const updateCity = async (id, data) => {
         headers: getHeaders(),
         body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("Failed to update city");
+    if (!res.ok) {
+        let msg = "Failed to update city";
+        try {
+            const err = await res.json();
+            msg = err.message || msg;
+        } catch (e) { }
+        throw new Error(msg);
+    }
     return res.json();
 };
 
@@ -210,6 +245,13 @@ export const deleteCity = async (id) => {
         method: "DELETE",
         headers: getHeaders(),
     });
-    if (!res.ok) throw new Error("Failed to delete city");
+    if (!res.ok) {
+        let msg = "Failed to delete city";
+        try {
+            const err = await res.json();
+            msg = err.message || msg;
+        } catch (e) { }
+        throw new Error(msg);
+    }
     return true;
 };
