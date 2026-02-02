@@ -4,6 +4,7 @@ import com.carecircle.matchingBookingService.caregiver.model.CaregiverService;
 import com.carecircle.matchingBookingService.caregiver.repository.CaregiverServiceRepository;
 import com.carecircle.matchingBookingService.common.service.UserIntegrationService;
 import com.carecircle.matchingBookingService.matching.dto.CaregiverServiceResponse;
+import com.carecircle.matchingBookingService.availability.repository.CaregiverAvailabilityRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,38 +20,61 @@ import java.util.stream.Collectors;
 @RequestMapping("/matching")
 public class MatchingController {
 
-    private final CaregiverServiceRepository caregiverServiceRepository;
-    private final UserIntegrationService userService;
+    private final  CaregiverAvailabilityRepository availabilityRepository;
+    private final  CaregiverServiceRepository caregiverServiceRepository;
+    private final UserIntegrationService userService;	
+    
 
     public MatchingController(
             CaregiverServiceRepository caregiverServiceRepository,
-            UserIntegrationService userService
+            UserIntegrationService userService,
+            com.carecircle.matchingBookingService.availability.repository.CaregiverAvailabilityRepository availabilityRepository
     ) {
         this.caregiverServiceRepository = caregiverServiceRepository;
         this.userService = userService;
+        this.availabilityRepository = availabilityRepository;
     }
 
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<Page<CaregiverServiceResponse>> searchServices(
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) UUID serviceId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit
+            @RequestBody com.carecircle.matchingBookingService.matching.dto.SearchRequest request
     ) {
+        String city = request.getCity();
+        UUID serviceId = request.getServiceId();
+        java.time.LocalDate date = request.getDate();
+        java.time.LocalTime startTime = request.getStartTime();
+        java.time.LocalTime endTime = request.getEndTime();
+        Integer childAge = request.getChildAge();
+        int page = request.getPage();
+        int limit = request.getLimit();
+
         Pageable pageable = PageRequest.of(page, limit);
 
-        Page<CaregiverService> entityPage;
-        if (city != null && serviceId != null) {
-            entityPage = caregiverServiceRepository.findByCityAndServiceIdAndActiveTrue(city, serviceId, pageable);
-        } else if (city != null) {
-            entityPage = caregiverServiceRepository.findByCityAndActiveTrue(city, pageable);
-        } else if (serviceId != null) {
-            entityPage = caregiverServiceRepository.findByServiceIdAndActiveTrue(serviceId, pageable);
-        } else {
-            entityPage = caregiverServiceRepository.findByActiveTrue(pageable);
+        // 1. Filter by Availability (if Date/Time provided)
+        List<UUID> availableCaregiverIds = null;
+        boolean filterByCaregivers = false;
+
+        if (date != null && startTime != null && endTime != null) {
+            availableCaregiverIds = availabilityRepository.findAvailableCaregiverIds(date, startTime, endTime);
+            filterByCaregivers = true;
+            
+            // If filtering is requested but no one is available, return empty immediately
+            if (availableCaregiverIds.isEmpty()) {
+                return ResponseEntity.ok(Page.empty(pageable));
+            }
         }
 
-        // Enrich with names in batch
+        // 2. Filter by Services (City, Service, Age, Caregiver List)
+        Page<CaregiverService> entityPage = caregiverServiceRepository.searchServices(
+                city, 
+                serviceId, 
+                childAge, 
+                availableCaregiverIds, 
+                filterByCaregivers, 
+                pageable
+        );
+
+        // 3. Enrich with names
         List<UUID> caregiverIds = entityPage.getContent().stream()
                 .map(CaregiverService::getCaregiverId)
                 .distinct()

@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { getAllCaregivers, getAllCertifications, verifyCaregiver, rejectCaregiver, verifyCertification, rejectCertification } from "../api/adminApi";
 
 export default function ManageCaregivers() {
+    const navigate = useNavigate();
     const [activeType, setActiveType] = useState("profiles"); // profiles | certs
     const [activeStatus, setActiveStatus] = useState("PENDING"); // PENDING | VERIFIED | REJECTED
 
@@ -107,14 +109,22 @@ export default function ManageCaregivers() {
                     </p>
                     {isCert && <p className="text-xs text-gray-400 mt-1">Caregiver ID: {item.caregiverId}</p>}
                     <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold ${status === 'VERIFIED' ? 'bg-green-100 text-green-600' :
-                            status === 'REJECTED' ? 'bg-red-100 text-red-600' :
-                                'bg-yellow-100 text-yellow-600'
+                        status === 'REJECTED' ? 'bg-red-100 text-red-600' :
+                            'bg-yellow-100 text-yellow-600'
                         }`}>
                         {status}
                     </span>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                    {activeType === "profiles" && (
+                        <button
+                            onClick={() => navigate(`/chat/${item.userId}`, { state: { isAdminAction: true, partnerId: item.userId } })}
+                            className="bg-blue-100 text-[#0071e3] px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-200 transition-colors w-full sm:w-auto"
+                        >
+                            Message
+                        </button>
+                    )}
                     <input
                         type="text"
                         placeholder="Reason..."

@@ -2,10 +2,12 @@ import API_BASE_URL from "./api";
 
 export const getActiveCities = async () => {
     console.log("Fetching cities from:", `${API_BASE_URL}/cities`);
+    const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE_URL}/cities`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
         },
     });
     if (!res.ok) {

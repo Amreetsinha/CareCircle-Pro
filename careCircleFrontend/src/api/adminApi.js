@@ -138,13 +138,46 @@ export const rejectCaregiver = async (id, reason) => {
     return true;
 };
 
-export const getBookings = async (type = "active", page = 0, limit = 5) => {
-    const res = await fetch(`${API_BASE_URL}/admin/bookings/${type}?page=${page}&limit=${limit}`, {
+export const getAllParents = async (city = "", page = 0, size = 10) => {
+    let url = `${API_BASE_URL}/admin/parents?page=${page}&size=${size}`;
+    if (city) {
+        url += `&city=${city}`;
+    }
+    const res = await fetch(url, {
         method: "GET",
         headers: getHeaders(),
     });
-    if (!res.ok) throw new Error(`Failed to fetch ${type} bookings`);
+    if (!res.ok) throw new Error("Failed to fetch parents");
     return res.json();
+};
+
+export const getChildrenForParent = async (parentId) => {
+    const res = await fetch(`${API_BASE_URL}/admin/parents/${parentId}/children`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed to fetch children for parent");
+    return res.json();
+};
+
+export const getBookings = async (type = "active", page = 0, limit = 5) => {
+    let statusParams = "";
+    if (type === "active") statusParams = "status=REQUESTED&status=ACCEPTED";
+    else if (type === "completed") statusParams = "status=COMPLETED";
+    else if (type === "cancelled") statusParams = "status=CANCELLED&status=REJECTED";
+
+    // Note: page/limit ignored for now in backend simple implementation, but we keep signature
+    const res = await fetch(`${API_BASE_URL}/bookings?${statusParams}`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    // Wrap in standard page response structure for frontend compatibility
+    if (!res.ok) throw new Error(`Failed to fetch ${type} bookings`);
+    const data = await res.json();
+    return {
+        content: data,
+        last: true // Simple list for now
+    };
 };
 
 export const getServices = async () => {

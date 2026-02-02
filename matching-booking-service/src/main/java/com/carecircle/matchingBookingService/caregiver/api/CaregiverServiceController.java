@@ -41,7 +41,8 @@ public class CaregiverServiceController {
             @RequestHeader("X-User-Role") String role,
             @RequestBody CreateCaregiverServiceRequest request
     ) {
-        if (!"ROLE_CARETAKER".equals(role)) {
+    	System.out.println(role);
+        if (!"ROLE_CARETAKER".equals(role) && !"ROLE_CAREGIVER".equals(role)) {
             throw new RuntimeException("Only caregiver can add services");
         }
 
@@ -85,7 +86,7 @@ public class CaregiverServiceController {
             @RequestHeader("X-User-Role") String role,
             @RequestBody com.carecircle.matchingBookingService.caregiver.api.dto.CreateCaregiverCertificationRequest request
     ) {
-        if (!"ROLE_CARETAKER".equals(role)) {
+        if (!"ROLE_CARETAKER".equals(role) && !"ROLE_CAREGIVER".equals(role)) {
             throw new RuntimeException("Only caregiver can add certifications");
         }
 
@@ -279,7 +280,7 @@ public class CaregiverServiceController {
 
     // Helpers
     private void validateCaregiver(String role) {
-        if (!"ROLE_CARETAKER".equals(role)) {
+        if (!"ROLE_CARETAKER".equals(role) && !"ROLE_CAREGIVER".equals(role)) {
             throw new RuntimeException("Only caregiver can perform this action");
         }
     }

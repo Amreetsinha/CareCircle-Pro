@@ -8,6 +8,7 @@ import java.util.UUID;
 public class CaregiverSummaryResponse {
     
     private final UUID id;
+    private final UUID userId;
     private final String fullName;
     private final String userEmail;
     private final String city;
@@ -17,6 +18,7 @@ public class CaregiverSummaryResponse {
 
     public CaregiverSummaryResponse(
             UUID id,
+            UUID userId,
             String fullName,
             String userEmail,
             String city,
@@ -25,6 +27,7 @@ public class CaregiverSummaryResponse {
             Integer experienceYears
     ) {
         this.id = id;
+        this.userId = userId;
         this.fullName = fullName;
         this.userEmail = userEmail;
         this.city = city;
@@ -35,6 +38,10 @@ public class CaregiverSummaryResponse {
 
     public UUID getId() {
         return id;
+    }
+
+    public UUID getUserId() {
+        return userId;
     }
 
     public String getFullName() {

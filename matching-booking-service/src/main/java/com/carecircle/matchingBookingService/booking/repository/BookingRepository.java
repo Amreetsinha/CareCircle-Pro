@@ -16,6 +16,11 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
     List<Booking> findByCaregiverId(UUID caregiverId);
     
+    List<Booking> findByStatus(String status);
+    List<Booking> findByStatusIn(List<String> statuses);
+    List<Booking> findByCaregiverIdAndStatusIn(UUID caregiverId, List<String> statuses);
+    List<Booking> findByParentIdAndStatusIn(UUID parentId, List<String> statuses);
+    
     boolean existsByCaregiverIdAndStatusAndStartTimeLessThanAndEndTimeGreaterThan(
             UUID caregiverId,
             String status,
@@ -37,4 +42,7 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     
     Page<Booking> findByStatusIn(List<String> statuses, Pageable pageable);
 
+    @org.springframework.data.jpa.repository.Query("SELECT b FROM Booking b WHERE b.caregiverId = :caregiverId AND b.status = 'ACCEPTED' AND b.startDate = :date AND " +
+            "((b.startTime < :endTime AND b.endTime > :startTime))")
+    List<Booking> findOverlappingBookings(UUID caregiverId, java.time.LocalDate date, java.time.LocalTime startTime, java.time.LocalTime endTime);
 }

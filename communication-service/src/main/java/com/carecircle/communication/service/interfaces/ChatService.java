@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface ChatService {
 
-    ChatRoomInitializationResponse initializeChatRoom(UUID bookingId, UUID initiatorId, UUID partnerId);
+    ChatRoomInitializationResponse initializeChatRoom(UUID bookingId, UUID initiatorId, String initiatorRole, UUID partnerId);
 
     void addParticipant(UUID roomId, UUID userId);
 

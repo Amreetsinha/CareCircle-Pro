@@ -24,12 +24,17 @@ import ManageCaregivers from "./pages/ManageCaregivers";
 import ManageBookings from "./pages/ManageBookings";
 import ManageServices from "./pages/ManageServices";
 import ManageCities from "./pages/ManageCities";
+import ManageParents from "./pages/ManageParents";
 
 // New Nanny pages
 import NannyProfile from "./pages/NannyProfile";
 import CaregiverDashboard from "./pages/CaregiverDashboard";
 import CaregiverServices from "./pages/CaregiverServices";
+import CaregiverAvailability from "./pages/CaregiverAvailability";
 import FindCaregivers from "./pages/FindCaregivers";
+import SearchCaregivers from "./pages/SearchCaregivers";
+import BookCaregiver from "./pages/BookCaregiver";
+import ChatPage from "./pages/ChatPage";
 
 export default function App() {
   return (
@@ -57,11 +62,13 @@ export default function App() {
         <Route path="/parent-profile" element={<ParentProfile />} />
         <Route path="/baby-details" element={<BabyDetails />} />
         <Route path="/find-nanny" element={<FindCaregivers />} />
+        <Route path="/book-caregiver" element={<BookCaregiver />} />
 
         {/* Admin flow */}
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/admin-profile" element={<AdminProfile />} />
+        <Route path="/admin/parents" element={<ManageParents />} />
         <Route path="/admin/nannies" element={<ManageCaregivers />} />
         <Route path="/admin/bookings" element={<ManageBookings />} />
         <Route path="/admin/services" element={<ManageServices />} />
@@ -71,6 +78,12 @@ export default function App() {
         <Route path="/caregiver-dashboard" element={<CaregiverDashboard />} />
         <Route path="/nanny-profile" element={<NannyProfile />} />
         <Route path="/caregiver-services" element={<CaregiverServices />} />
+        <Route path="/caregiver-availability" element={<CaregiverAvailability />} />
+        <Route path="/search-caregivers" element={<SearchCaregivers />} />
+
+        {/* Chat */}
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/chat/:partnerId" element={<ChatPage />} />
 
         {/* Fallback: redirect unknown paths to home */}
         <Route path="*" element={<Home />} />

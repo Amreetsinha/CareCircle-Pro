@@ -10,8 +10,20 @@ public interface CaregiverAvailabilityRepository extends JpaRepository<Caregiver
 
     List<CaregiverAvailability> findByCaregiverIdAndActiveTrue(UUID caregiverId);
 
-    List<CaregiverAvailability> findByCaregiverIdAndDayOfWeekAndActiveTrue(
+    List<CaregiverAvailability> findByCaregiverIdAndAvailableDateAndActiveTrue(
             UUID caregiverId,
-            String dayOfWeek
+            java.time.LocalDate availableDate
     );
+
+    List<CaregiverAvailability> findByCaregiverIdAndAvailableDateGreaterThanEqualAndActiveTrue(
+            UUID caregiverId,
+            java.time.LocalDate date
+    );
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    void deleteByCaregiverIdAndAvailableDateBefore(UUID caregiverId, java.time.LocalDate date);
+
+    @org.springframework.data.jpa.repository.Query("SELECT c.caregiverId FROM CaregiverAvailability c WHERE c.availableDate = :date AND c.startTime <= :startTime AND c.endTime >= :endTime AND c.active = true")
+    List<UUID> findAvailableCaregiverIds(java.time.LocalDate date, java.time.LocalTime startTime, java.time.LocalTime endTime);
 }

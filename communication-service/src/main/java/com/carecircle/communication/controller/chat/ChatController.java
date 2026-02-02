@@ -30,11 +30,13 @@ public class ChatController {
     @PostMapping("/rooms")
     public ResponseEntity<ChatRoomInitializationResponse> createRoom(
             @RequestHeader("X-User-Id") UUID initiatorId,
+            @RequestHeader("X-User-Role") String userRole,
             @RequestBody CreateChatRoomRequest request
     ) {
         ChatRoomInitializationResponse response = chatService.initializeChatRoom(
                 request.getBookingId(),
                 initiatorId,
+                userRole,
                 request.getPartnerId()
         );
         return ResponseEntity.ok(response);

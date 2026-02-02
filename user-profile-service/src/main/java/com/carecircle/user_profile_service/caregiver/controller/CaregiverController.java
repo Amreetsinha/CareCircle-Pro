@@ -122,7 +122,7 @@ public class CaregiverController {
 
     private void validateCaregiverRole(HttpServletRequest request) {
         String role = request.getHeader(USER_ROLE_HEADER);
-        if (!CAREGIVER_ROLE.equals(role)) {
+        if (!CAREGIVER_ROLE.equals(role) && !"ROLE_CAREGIVER".equals(role)) {
             throw new RuntimeException("Access denied: user is not a caregiver");
         }
     }
@@ -130,12 +130,13 @@ public class CaregiverController {
     private CaregiverProfileResponse mapProfile(CaregiverProfile p) {
         return new CaregiverProfileResponse(
                 p.getId(),
+                p.getUserId(),
                 p.getFullName(),
-                p.getUserEmail(), // Added email
+                p.getUserEmail(),
                 p.getPhoneNumber(),
                 p.getAge(),
                 p.getGender(),
-                p.getAddress(),   // Simplified address
+                p.getAddress(),
                 p.getCity(),
                 p.getBio(),
                 p.getExperienceYears(),

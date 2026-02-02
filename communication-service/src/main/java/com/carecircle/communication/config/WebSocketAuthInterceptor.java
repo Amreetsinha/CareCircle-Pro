@@ -24,15 +24,34 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
             String userIdHeader = accessor.getFirstNativeHeader(USER_ID_HEADER);
-
-            if (userIdHeader == null || userIdHeader.isBlank()) {
-                throw new IllegalStateException("Missing X-User-Id header in WebSocket CONNECT");
+            if (userIdHeader == null) {
+                userIdHeader = accessor.getFirstNativeHeader(USER_ID_HEADER.toLowerCase());
             }
 
-            UUID userId = UUID.fromString(userIdHeader);
+            System.out.println("WebSocket Connect Headers: " + accessor.toNativeHeaderMap());
+
+            if (userIdHeader == null || userIdHeader.isBlank()) {
+                throw new IllegalStateException("Missing X-User-Id header in WebSocket CONNECT. Headers: " + accessor.toNativeHeaderMap());
+            }
+
+            UUID userId;
+            try {
+                userId = UUID.fromString(userIdHeader);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalStateException("Invalid X-User-Id format: " + userIdHeader);
+            }
 
             // Attach user identity to WebSocket session
             accessor.getSessionAttributes().put(USER_ID_ATTR, userId);
+            
+            // Set the User Principal for Spring Security / WebSocket Context
+            final String principalId = userId.toString();
+            accessor.setUser(new java.security.Principal() {
+                @Override
+                public String getName() {
+                    return principalId;
+                }
+            });
         }
 
         return message;

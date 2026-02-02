@@ -8,15 +8,26 @@ const getHeaders = () => {
     };
 };
 
-export const searchCaregivers = async (city = "", serviceId = "", page = 0, limit = 10) => {
-    let url = `${API_BASE_URL}/matching/search?page=${page}&limit=${limit}`;
-    if (city) url += `&city=${encodeURIComponent(city)}`;
-    if (serviceId) url += `&serviceId=${serviceId}`;
+export const searchCaregivers = async (city = "", serviceId = "", date = "", startTime = "", endTime = "", childAge = "", page = 0, limit = 10) => {
 
-    const res = await fetch(url, {
-        method: "GET",
+    // Construct request body
+    const body = {
+        city: city || null,
+        serviceId: serviceId || null,
+        date: date || null,
+        startTime: startTime || null,
+        endTime: endTime || null,
+        childAge: childAge || null,
+        page,
+        limit
+    };
+
+    const res = await fetch(`${API_BASE_URL}/matching/search`, {
+        method: "POST",
         headers: getHeaders(),
+        body: JSON.stringify(body)
     });
+
     if (!res.ok) throw new Error("Failed to search caregivers");
     return res.json();
 };

@@ -193,11 +193,13 @@ public class AdminServiceImpl implements AdminService {
                                 .map(parent -> {
                                         long childCount = childRepository.countByParent(parent);
                                         return new ParentSummaryResponse(
-                                                        parent.getId(),
+                                                        parent.getUserId(), // We return userId as the ID for consistency with other APIs
                                                         parent.getFullName(),
                                                         parent.getUserEmail(),
+                                                        parent.getPhoneNumber(),
                                                         parent.getCity(),
-                                                        childCount);
+                                                        childCount
+                                        );
                                 })
                                 .collect(Collectors.toList());
 
@@ -258,6 +260,7 @@ public class AdminServiceImpl implements AdminService {
                 List<CaregiverSummaryResponse> content = caregiversPage.getContent().stream()
                                 .map(caregiver -> new CaregiverSummaryResponse(
                                                 caregiver.getId(),
+                                                caregiver.getUserId(),
                                                 caregiver.getFullName(),
                                                 caregiver.getUserEmail(),
                                                 caregiver.getCity(),

@@ -10,13 +10,15 @@ public class ParentSummaryResponse {
     private UUID parentId;
     private String fullName;
     private String email;
+    private String phoneNumber;
     private String city;
     private long childrenCount;
 
-    public ParentSummaryResponse(UUID parentId, String fullName, String email, String city, long childrenCount) {
+    public ParentSummaryResponse(UUID parentId, String fullName, String email, String phoneNumber, String city, long childrenCount) {
         this.parentId = parentId;
         this.fullName = fullName;
         this.email = email;
+        this.phoneNumber = phoneNumber;
         this.city = city;
         this.childrenCount = childrenCount;
     }
@@ -24,12 +26,14 @@ public class ParentSummaryResponse {
     public UUID getParentId() { return parentId; }
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
+    public String getPhoneNumber() { return phoneNumber; }
     public String getCity() { return city; }
     public long getChildrenCount() { return childrenCount; }
 
     public void setParentId(UUID parentId) { this.parentId = parentId; }
     public void setFullName(String fullName) { this.fullName = fullName; }
     public void setEmail(String email) { this.email = email; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     public void setCity(String city) { this.city = city; }
     public void setChildrenCount(long childrenCount) { this.childrenCount = childrenCount; }
 }
